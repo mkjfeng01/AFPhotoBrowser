@@ -5,16 +5,16 @@
  	{
  		id: 124,
  		items: [
- 			{ label: "label1", images: ["uri0", "uri1", "url2"] },
- 			{ label: "label2", images: ["uri1", "url2"] }
+ 			{id: "626", label: "label1", images: ["uri0", "uri1", "url2"] },
+ 			{id: "626", label: "label2", images: ["uri1", "url2"] }
  		]
  	},
  	{
  		id: 124,
  		items: [
- 			{ label: "label1", images: ["uri0", "uri1", "url2"] },
- 			{ label: "label2", images: ["uri3", "url4"] },
- 			{ label: "label3", images: ["uri5", "url6"] }
+ 			{id: "626", label: "label1", images: ["uri0", "uri1", "url2"] },
+ 			{id: "626", label: "label2", images: ["uri3", "url4"] },
+ 			{id: "626", label: "label3", images: ["uri5", "url6"] }
  		]
  	}
  ]

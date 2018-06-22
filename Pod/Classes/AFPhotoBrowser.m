@@ -289,6 +289,47 @@
     return _photoCount;
 }
 
+- (id<AFPhoto>)photoAtIndex:(NSUInteger)index inSection:(NSInteger)section {
+    id <AFPhoto> photo = nil;
+    
+    
+    
+    
+    return photo;
+}
+
+- (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index inSection:(NSInteger)section {
+    id <AFPhoto> photo = nil;
+    
+    
+    
+    
+    return photo;
+}
+
+#pragma mark - Page ScrollView Delegate
+
+- (NSUInteger)numberOfPhotosInPageScrollView:(AFPageScrollView *)scrollView {
+    return [self numberOfPhotosInSection:_currentSectionIndex];
+}
+
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSInteger)index {
+    return [self photoAtIndex:index inSection:_currentSectionIndex];
+}
+
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSInteger)index {
+    return [self thumbPhotoAtIndex:index inSection:_currentSectionIndex];
+}
+
+- (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSInteger)index {
+    return nil;
+}
+
+- (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSInteger)index {
+    
+}
+
+
 #pragma mark - Frame Calculations
 
 - (CGSize)contentSizeForPagingScrollView {
@@ -337,7 +378,6 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     [self updateNavigation];
 }
-
 
 #pragma mark - Navigation
 

@@ -3,10 +3,6 @@ use_frameworks!
 
 target 'PhotoBrowser' do
 
-    pod "PhotoBrowser", :path => "../"
-
-    pod 'Masonry'
-    pod 'MBProgressHUD'
-    pod 'SDWebImage'
+    pod "AFPhotoBrowser", :path => "../"
 
 end

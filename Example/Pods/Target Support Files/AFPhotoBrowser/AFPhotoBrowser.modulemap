@@ -1,0 +1,6 @@
+framework module AFPhotoBrowser {
+  umbrella header "AFPhotoBrowser-umbrella.h"
+
+  export *
+  module * { export * }
+}

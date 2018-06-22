@@ -5,6 +5,7 @@ Pod::Spec.new do |s|
   s.license = 'MIT'
   s.summary = 'PhotoBrowser plugin for `Cloud`'
   s.description = <<-DESCRIPTION
+                  PhotoBrowser plugin based on MWPhotoBrowser.
                   DESCRIPTION
   s.screenshots = [
   ]

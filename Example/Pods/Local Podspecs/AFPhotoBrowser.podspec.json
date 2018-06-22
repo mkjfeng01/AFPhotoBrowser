@@ -1,0 +1,46 @@
+{
+  "name": "AFPhotoBrowser",
+  "version": "0.0.1",
+  "license": "MIT",
+  "summary": "PhotoBrowser plugin for `Cloud`",
+  "description": "PhotoBrowser plugin based on MWPhotoBrowser.",
+  "screenshots": [
+
+  ],
+  "homepage": "https://github.com/mkjfeng01/PhotoBrowser",
+  "authors": {
+    "mkjfeng01": "mkjfeng01@gmail.com"
+  },
+  "source": {
+    "git": "https://github.com/mkjfeng01/PhotoBrowser.git",
+    "tag": "0.0.1"
+  },
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source_files": "Pod/Classes/**/*",
+  "resource_bundles": {
+    "AFPhotoBrowser": [
+      "Pod/Assets/*.png"
+    ]
+  },
+  "requires_arc": true,
+  "frameworks": [
+    "ImageIO",
+    "QuartzCore",
+    "AssetsLibrary",
+    "MediaPlayer"
+  ],
+  "weak_frameworks": "Photos",
+  "dependencies": {
+    "MBProgressHUD": [
+
+    ],
+    "DACircularProgress": [
+
+    ],
+    "SDWebImage": [
+
+    ]
+  }
+}

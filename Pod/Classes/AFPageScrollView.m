@@ -32,7 +32,6 @@
     return self;
 }
 
-
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     if (self == [super initWithCoder:aDecoder]) {
         [self setup];
@@ -40,32 +39,32 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)awakeFromNib {
     [self setup];
     [super awakeFromNib];
 }
 
-#pragma mark - Layout
-
-- (void)layoutSubviews {
-    
-    [super layoutSubviews];
-}
-
-- (void)performLayout {
-    
-    
-}
-
 - (void)initialProperties {
     
+    _currentPageIndex = 0;
+    _previousPageIndex = NSUIntegerMax;
+    
+    _rotating = NO;
     _disableIndicator = YES;
+    _performingLayout = NO;
+    _viewIsActive = NO;
     
     
     _photoCount = NSNotFound;
     _photos = [[NSMutableArray alloc] init];
     _thumbPhotos = [[NSMutableArray alloc] init];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willTransitionToTraitCollection) name:AFPHOTO_BROWSER_WILL_TRANSITION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidTransitionToSize) name:AFPHOTO_BROWSER_DID_END_TRANSITION object:nil];
     
 }
 
@@ -89,7 +88,55 @@
     
 }
 
+- (void)didMoveToSuperview {
+    _viewIsActive = YES;
+}
+
+- (void)removeFromSuperview {
+    _viewIsActive = NO;
+}
+
+#pragma mark - Notifications
+
+- (void)willTransitionToTraitCollection:(NSNotification *)notify {
+    
+}
+
+- (void)viewDidTransitionToSize:(NSNotification *)notify {
+    
+}
+
+
+
 #pragma mark - Layout
+
+- (void)performLayout {
+    _performingLayout = YES;
+    
+    
+    
+    
+    
+    _performingLayout = NO;
+}
+
+
+- (void)layoutVisibleSections {
+    _performingLayout = YES;
+    
+    
+    _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
+    
+    if (!_disableIndicator) {
+        _pagingIndicator.center = [self centerForPagingIndicator];
+    }
+    
+    
+    
+    _performingLayout = NO;
+}
+
+
 #pragma mark - Rotation
 
 
@@ -108,6 +155,12 @@
 }
 
 #pragma mark - Paging
+
+// Handle page changes
+- (void)didStartViewingPageAtIndex:(NSUInteger)index {
+    
+    
+}
 
 #pragma mark - Frame Calculations
 
@@ -138,6 +191,19 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    if (!_viewIsActive || _performingLayout || _rotating) return;
+    
+    // Calculate current page
+    CGRect visibleBounds = _pagingScrollView.bounds;
+    NSInteger index = (NSInteger)(floorf(CGRectGetMidX(visibleBounds) / CGRectGetWidth(visibleBounds)));
+    if (index < 0) index = 0;
+    if (index > [self numberOfPhotos] - 1) index = [self numberOfPhotos] - 1;
+    NSUInteger previousCurrentPage = _currentPageIndex;
+    _currentPageIndex = index;
+    if (_currentPageIndex != previousCurrentPage) {
+        [self didStartViewingPageAtIndex:index];
+    }
     
 }
 

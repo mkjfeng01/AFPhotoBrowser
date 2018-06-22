@@ -135,6 +135,8 @@
     [super viewWillDisappear:animated];
 }
 
+#pragma mark - Layout
+
 - (void)performLayout {
     _performingLayout = YES;
     
@@ -145,8 +147,6 @@
     _performingLayout = NO;
 }
 
-
-#pragma mark - Layout
 
 - (void)layoutVisibleSections {
     _performingLayout = YES;
@@ -180,15 +180,18 @@
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _rotating = YES;
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_BROWSER_WILL_TRANSITION object:coordinator];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    
     
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self layoutVisibleSections];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         self->_rotating = NO;
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_BROWSER_DID_END_TRANSITION object:coordinator];
     }];
 }
 

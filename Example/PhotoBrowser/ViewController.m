@@ -29,7 +29,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    self.navigationItem.title = @"PhotoBrowser";
+    self.navigationItem.title = @"";
     
     self.navigationController.navigationBar.tintColor = [UIColor redColor];
     self.navigationController.navigationBar.backgroundColor = [UIColor blackColor];
@@ -59,7 +59,11 @@
 }
 
 - (NSInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSInteger)section {
-    return 3;
+    if (section == 0) return 1;
+    if (section == 1) return 2;
+    if (section == 2) return 3;
+    if (section == 3) return 4;
+    return 5;
 }
 
 @end

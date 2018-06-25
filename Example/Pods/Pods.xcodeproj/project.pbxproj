@@ -55,6 +55,12 @@
 		7226824DAAB7B2DA815623204BB639FA /* SDWebImageCoderHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EA6CFAA3727CFFC47AE59AA27032096 /* SDWebImageCoderHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		72A99FD4A22159A4C0B885B7E4A05B5F /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BD0FA9CE475DF6AB8AD1F3503C4D7BE /* NSData+ImageContentType.m */; };
 		73205A51DE95481DAEF33A0D29522CA4 /* Pods-PhotoBrowser-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EEDC485349AA93AEC557B5A4535DCF0 /* Pods-PhotoBrowser-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7A1F99C820E0DD9300BC3ACE /* AFTapDetectingImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99C620E0DD9300BC3ACE /* AFTapDetectingImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7A1F99C920E0DD9300BC3ACE /* AFTapDetectingImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99C720E0DD9300BC3ACE /* AFTapDetectingImageView.m */; };
+		7A1F99CC20E0DDB400BC3ACE /* AFZoomingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99CA20E0DDB300BC3ACE /* AFZoomingScrollView.m */; };
+		7A1F99CD20E0DDB400BC3ACE /* AFZoomingScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */; };
+		7A1F99D020E0DDCB00BC3ACE /* AFTapDetectingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */; };
+		7A1F99D120E0DDCB00BC3ACE /* AFTapDetectingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99CF20E0DDCB00BC3ACE /* AFTapDetectingView.m */; };
 		7B298461C5EDBDC74F37582C5214F4E3 /* NSImage+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 820101A58E0DF565092068BD293F2E4E /* NSImage+WebCache.m */; };
 		7DDF90740276055249C84E8AF8101D82 /* AFPageScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C8A9705100ABD20E1D700B96B247D89 /* AFPageScrollView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7E44A91E3EAB5D959D7D4EC6D3946251 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DCD16883211BAE5CC732D820B7C3CB /* SDAnimatedImageRep.m */; };
@@ -228,6 +234,12 @@
 		755E4B82C5F5314A86BF238E2EBB670F /* SDWebImageCodersManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = SDWebImageCodersManager.m; path = SDWebImage/SDWebImageCodersManager.m; sourceTree = "<group>"; };
 		78368A637C3BDCD7A0FA14051A11B2A5 /* SDWebImageCoderHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = SDWebImageCoderHelper.m; path = SDWebImage/SDWebImageCoderHelper.m; sourceTree = "<group>"; };
 		78B2A50942AED5E09E066F88ADF8415D /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
+		7A1F99C620E0DD9300BC3ACE /* AFTapDetectingImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFTapDetectingImageView.h; path = Pod/Classes/AFTapDetectingImageView.h; sourceTree = "<group>"; };
+		7A1F99C720E0DD9300BC3ACE /* AFTapDetectingImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AFTapDetectingImageView.m; path = Pod/Classes/AFTapDetectingImageView.m; sourceTree = "<group>"; };
+		7A1F99CA20E0DDB300BC3ACE /* AFZoomingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFZoomingScrollView.m; path = Pod/Classes/AFZoomingScrollView.m; sourceTree = "<group>"; };
+		7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFZoomingScrollView.h; path = Pod/Classes/AFZoomingScrollView.h; sourceTree = "<group>"; };
+		7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFTapDetectingView.h; path = Pod/Classes/AFTapDetectingView.h; sourceTree = "<group>"; };
+		7A1F99CF20E0DDCB00BC3ACE /* AFTapDetectingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AFTapDetectingView.m; path = Pod/Classes/AFTapDetectingView.m; sourceTree = "<group>"; };
 		7C78E2987601EC385011CA5AD34A5FCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		820101A58E0DF565092068BD293F2E4E /* NSImage+WebCache.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "NSImage+WebCache.m"; path = "SDWebImage/NSImage+WebCache.m"; sourceTree = "<group>"; };
 		82DB369B611DF6FFD64A0C48C3388134 /* AFPhotoBrowser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AFPhotoBrowser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -594,6 +606,12 @@
 				D94C2BA9630872BAA7DD04993725D18D /* AFPhotoProtocol.h */,
 				51909065D3743F77230EA7362809F7BB /* AFPhoto.h */,
 				5720BF62BF835F8EA81F033FB982EBAD /* AFPhoto.m */,
+				7A1F99C620E0DD9300BC3ACE /* AFTapDetectingImageView.h */,
+				7A1F99C720E0DD9300BC3ACE /* AFTapDetectingImageView.m */,
+				7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */,
+				7A1F99CF20E0DDCB00BC3ACE /* AFTapDetectingView.m */,
+				7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */,
+				7A1F99CA20E0DDB300BC3ACE /* AFZoomingScrollView.m */,
 				292AB62CFF4A0C3E18108C10B570ED2C /* AFPageScrollViewPrivate.h */,
 				4C8A9705100ABD20E1D700B96B247D89 /* AFPageScrollView.h */,
 				CC75F54BD093E1F79DC6E4AA960C8C31 /* AFPageScrollView.m */,
@@ -662,12 +680,15 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A1F99C820E0DD9300BC3ACE /* AFTapDetectingImageView.h in Headers */,
+				7A1F99CD20E0DDB400BC3ACE /* AFZoomingScrollView.h in Headers */,
 				7DDF90740276055249C84E8AF8101D82 /* AFPageScrollView.h in Headers */,
 				BB1CBA0570423FC7DA54EAB878D89E3D /* AFPageScrollViewPrivate.h in Headers */,
 				2638B5E6729742612A4C239D7DD9C73C /* AFPhoto.h in Headers */,
 				042F44EE647F61FFCF1418A618BD3964 /* AFPhotoBrowser-umbrella.h in Headers */,
 				25B7C3D3AF8CF875BDA9744D7DA41284 /* AFPhotoBrowser.h in Headers */,
 				52F7B91AB8BCFCC83A1EB189B2B80BE3 /* AFPhotoBrowserPrivate.h in Headers */,
+				7A1F99D020E0DDCB00BC3ACE /* AFTapDetectingView.h in Headers */,
 				6EED89DC935751158F749EA67D636456 /* AFPhotoProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -927,7 +948,10 @@
 			files = (
 				4D24647DD6CB98814647EFB1FDBD8215 /* AFPageScrollView.m in Sources */,
 				A8A6B40CDE357D29AD062329D6DA19B3 /* AFPhoto.m in Sources */,
+				7A1F99C920E0DD9300BC3ACE /* AFTapDetectingImageView.m in Sources */,
+				7A1F99D120E0DDCB00BC3ACE /* AFTapDetectingView.m in Sources */,
 				886F2ED09EBC621389D335551D076369 /* AFPhotoBrowser-dummy.m in Sources */,
+				7A1F99CC20E0DDB400BC3ACE /* AFZoomingScrollView.m in Sources */,
 				E1BAFA7B3065DB92452B156C97E851D1 /* AFPhotoBrowser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

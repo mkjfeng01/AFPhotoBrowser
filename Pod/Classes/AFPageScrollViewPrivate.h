@@ -22,7 +22,6 @@
     
     BOOL _rotating;
     
-    BOOL _disableIndicator;
     BOOL _performingLayout;
     BOOL _viewIsActive; // active as in it's in the view heirarchy
     

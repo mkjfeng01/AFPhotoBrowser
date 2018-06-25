@@ -4,7 +4,7 @@
 
 @protocol AFPhotoBrowserDelegate;
 
-@interface AFPhotoBrowser : UIViewController <UIScrollViewDelegate>
+@interface AFPhotoBrowser : UIViewController <UIScrollViewDelegate, AFPageScrollViewDelegate>
 
 @property (nonatomic, weak) IBOutlet id<AFPhotoBrowserDelegate> delegate;
 
@@ -38,7 +38,9 @@
 @optional
 
 - (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser thumbPhotoAtIndex:(NSInteger)index inSection:(NSInteger)section;
-- (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index inSection:(NSInteger)section;
+- (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSInteger)index inSection:(NSInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSInteger)index;
+
 
 @end
 

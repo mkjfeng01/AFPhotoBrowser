@@ -50,6 +50,7 @@
     _sectionCount = NSNotFound;
     _currentSectionIndex = 0;
     _currentPhotoIndex = 0;
+    _previousSectionIndex = NSIntegerMax;
     
     
     _performingLayout = NO;
@@ -68,7 +69,8 @@
     _photos = [[NSMutableArray alloc] init];
     _thumbPhotos = [[NSMutableArray alloc] init];
     
-    
+    _visiblePages = [[NSMutableSet alloc] init];
+    _recycledPages = [[NSMutableSet alloc] init];
 }
 
 #pragma mark - Life
@@ -83,7 +85,7 @@
     _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _pagingScrollView.delegate = self;
     _pagingScrollView.pagingEnabled = YES;
-    _pagingScrollView.backgroundColor = [UIColor purpleColor];
+    _pagingScrollView.backgroundColor = [UIColor blackColor];
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self.view addSubview:_pagingScrollView];
     
@@ -98,7 +100,7 @@
         _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
         _pagingIndicator.center = pagingIndicatorCenter;
         _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
-        _pagingIndicator.currentPageIndicatorTintColor = [UIColor whiteColor];
+        _pagingIndicator.currentPageIndicatorTintColor = [UIColor redColor];
         _pagingIndicator.numberOfPages = [self numberOfSections];
         [self.view addSubview:_pagingIndicator];
     }
@@ -138,19 +140,29 @@
 #pragma mark - Layout
 
 - (void)performLayout {
+    
     _performingLayout = YES;
     
+    // Setup pages
+    [_visiblePages removeAllObjects];
+    [_recycledPages removeAllObjects];
     
     
+    // Update nav
+    [self updateNavigation];
     
-    
+    // Content offset
+    _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:_currentSectionIndex];
+    [self tilePages];
     _performingLayout = NO;
+    
 }
 
 
 - (void)layoutVisibleSections {
     _performingLayout = YES;
     
+    NSUInteger indexPriorToLayout = _currentSectionIndex;
     
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     
@@ -159,13 +171,19 @@
     }
     
     
+    _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:indexPriorToLayout];
     
+    
+    _currentSectionIndex = indexPriorToLayout;
     _performingLayout = NO;
 }
 
 
 #pragma mark - Transition
 
+// viewWillTransitionToSize: vs willTransitionToTraitCollection:
+// https://stackoverflow.com/questions/33377708/viewwilltransitiontosize-vs-willtransitiontotraitcollection
+//
 - (BOOL)prefersStatusBarHidden {
     return _statusBarShouldBeHidden;
 }
@@ -181,17 +199,14 @@
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _rotating = YES;
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_BROWSER_WILL_TRANSITION object:coordinator];
-}
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self layoutVisibleSections];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION object:coordinator];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         self->_rotating = NO;
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_BROWSER_DID_END_TRANSITION object:coordinator];
+        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION object:coordinator];
     }];
 }
 
@@ -199,21 +214,87 @@
 
 - (void)tilePages {
     
-    
-    
+    CGRect visibleBounds = _pagingScrollView.bounds;
+    NSInteger iFirstSection = (NSInteger)floorf(CGRectGetMinX(visibleBounds) / CGRectGetWidth(visibleBounds));
+    NSInteger iLastSection = (NSInteger)floorf(CGRectGetMaxX(visibleBounds) / CGRectGetWidth(visibleBounds));
+    if (iFirstSection < 0) iFirstSection = 0;
+    if (iFirstSection > [self numberOfSections] - 1) iFirstSection = [self numberOfSections] - 1;
+    if (iLastSection < 0) iLastSection = 0;
+    if (iLastSection > [self numberOfSections] - 1) iLastSection = [self numberOfSections] - 1;
+
+    NSInteger pageSection;
+    for (AFPageScrollView *page in _visiblePages) {
+        pageSection = page.section;
+        if (pageSection < iFirstSection || pageSection > iLastSection) {
+            [_recycledPages addObject:page];
+            [page prepareForReuse];
+            [page removeFromSuperview];
+            NSLog(@"Removed page at section %lu", (unsigned long)pageSection);
+        }
+    }
+    [_visiblePages minusSet:_recycledPages];
+    while (_recycledPages.count > 2) {
+        [_recycledPages removeObject:[_recycledPages anyObject]];
+    }
+
+    for (NSInteger index = iFirstSection; index <= iLastSection; index++) {
+        if (![self isDisplayingPageForSection:index]) {
+            AFPageScrollView *page = [self dequeueRecycledPage];
+            if (!page) {
+                page = [[AFPageScrollView alloc] initWithPhotoBrowser:self];
+            }
+            [_visiblePages addObject:page];
+            [self configurePage:page forSection:index];
+
+            [_pagingScrollView addSubview:page];
+            NSLog(@"Added page at index %lu", (unsigned long)index);
+        }
+    }
 }
 
+- (BOOL)isDisplayingPageForSection:(NSInteger)section {
+    for (AFPageScrollView *page in _visiblePages)
+        if (page.section == section) return YES;
+    return NO;
+}
+
+- (void)configurePage:(AFPageScrollView *)page forSection:(NSInteger)section {
+    page.frame = [self frameForPageAtSection:section];
+    page.pageDelegate = self;
+    page.section = section;
+    page.disableIndicator = _disableIndicator;
+    
+    [page setup];
+}
+
+- (AFPageScrollView *)dequeueRecycledPage {
+    AFPageScrollView *page = [_recycledPages anyObject];
+    if (page) {
+        [_recycledPages removeObject:page];
+    }
+    return page;
+}
 
 - (void)didStartViewingSectionAtIndex:(NSUInteger)index {
-    NSLog(@"%zd", index);
     
     if (![self numberOfSections]) {
         [self setControlsHidden:NO animated:YES];
         return;
     }
     
-    _pagingIndicator.currentPage = index;
+    if (!_disableIndicator) {
+        _pagingIndicator.currentPage = index;
+    }
     
+    if (index != _previousSectionIndex) {
+        if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplaySectionAtIndex:)]) {
+            [_delegate photoBrowser:self didDisplaySectionAtIndex:index];
+        }
+        _previousSectionIndex = index;
+    }
+    
+    
+    [self updateNavigation];
     
 }
     
@@ -313,15 +394,16 @@
 #pragma mark - Page ScrollView Delegate
 
 - (NSUInteger)numberOfPhotosInPageScrollView:(AFPageScrollView *)scrollView {
-    return [self numberOfPhotosInSection:_currentSectionIndex];
+    NSLog(@"☞ %zd", scrollView.section);
+    return [self numberOfPhotosInSection:scrollView.section];
 }
 
 - (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSInteger)index {
-    return [self photoAtIndex:index inSection:_currentSectionIndex];
+    return [self photoAtIndex:index inSection:scrollView.section];
 }
 
 - (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSInteger)index {
-    return [self thumbPhotoAtIndex:index inSection:_currentSectionIndex];
+    return [self thumbPhotoAtIndex:index inSection:scrollView.section];
 }
 
 - (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSInteger)index {
@@ -331,7 +413,6 @@
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSInteger)index {
     
 }
-
 
 #pragma mark - Frame Calculations
 
@@ -355,15 +436,31 @@
     return CGPointMake(_pagingScrollView.center.x, centerY);
 }
 
+- (CGPoint)contentOffsetForPageAtSection:(NSInteger)section {
+    CGFloat sectionWidth = _pagingScrollView.bounds.size.width;
+    CGFloat newOffset = sectionWidth * section;
+    return CGPointMake(newOffset, 0);
+}
+
+- (CGRect)frameForPageAtSection:(NSInteger)section {
+    CGRect bounds = _pagingScrollView.bounds;
+    CGRect pageFrame = bounds;
+    pageFrame.origin.x = (bounds.size.width * section);
+    return pageFrame;
+}
+
 #pragma mark - UIScrollView Delegata
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    [self setControlsHidden:YES animated:YES];
+    // [self setControlsHidden:YES animated:YES];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     if (!_viewIsActive || _performingLayout || _rotating) return;
+    
+    // Tile pages
+    [self tilePages];
     
     // Calculate current page
     CGRect visibleBounds = _pagingScrollView.bounds;

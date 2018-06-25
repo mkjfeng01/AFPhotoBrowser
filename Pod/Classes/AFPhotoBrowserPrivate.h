@@ -14,10 +14,14 @@
     NSMutableArray *_thumbPhotos;
     
     
+    // Paging & layout
+    NSMutableSet *_visiblePages, *_recycledPages;
+    
     // Index
     NSInteger _sectionCount;
     NSInteger _currentSectionIndex;
     NSInteger _currentPhotoIndex;
+    NSUInteger _previousSectionIndex;
     
     // Navigation & controls
     NSTimer *_controlVisibilityTimer;

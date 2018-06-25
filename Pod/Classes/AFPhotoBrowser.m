@@ -374,9 +374,23 @@
 
 - (id<AFPhoto>)photoAtIndex:(NSUInteger)index inSection:(NSInteger)section {
     id <AFPhoto> photo = nil;
-    
-    
-    
+    if (section < _photos.count) {
+        NSArray *photos = [_photos objectAtIndex:section];
+        if (index < photos.count) {
+            if ([photos objectAtIndex:index] == [NSNull null]) {
+                if ([_delegate respondsToSelector:@selector(photoBrowser:photoAtIndex:inSection:)]) {
+                    photo = [_delegate photoBrowser:self photoAtIndex:index inSection:section];
+                } else if (_fixedPhotosArray && section < _fixedPhotosArray.count && index < [[_fixedPhotosArray objectAtIndex:section] count]) {
+                    photo = [[_fixedPhotosArray objectAtIndex:section] objectAtIndex:index];
+                }
+                if (photo) {
+                    NSMutableArray *sectionPhotos = [_photos objectAtIndex:section];
+                    [sectionPhotos replaceObjectAtIndex:index withObject:photo];
+                    [_photos replaceObjectAtIndex:section withObject:sectionPhotos];
+                }
+            }
+        }
+    }
     
     return photo;
 }

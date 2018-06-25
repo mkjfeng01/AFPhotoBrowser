@@ -100,7 +100,7 @@
         _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
         _pagingIndicator.center = pagingIndicatorCenter;
         _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
-        _pagingIndicator.currentPageIndicatorTintColor = [UIColor redColor];
+        _pagingIndicator.currentPageIndicatorTintColor = [UIColor orangeColor];
         _pagingIndicator.numberOfPages = [self numberOfSections];
         [self.view addSubview:_pagingIndicator];
     }
@@ -146,7 +146,6 @@
     // Setup pages
     [_visiblePages removeAllObjects];
     [_recycledPages removeAllObjects];
-    
     
     // Update nav
     [self updateNavigation];
@@ -229,7 +228,7 @@
             [_recycledPages addObject:page];
             [page prepareForReuse];
             [page removeFromSuperview];
-            NSLog(@"Removed page at section %lu", (unsigned long)pageSection);
+            NSLog(@"[Browser] Removed page at section %lu", (unsigned long)pageSection);
         }
     }
     [_visiblePages minusSet:_recycledPages];
@@ -247,7 +246,7 @@
             [self configurePage:page forSection:index];
 
             [_pagingScrollView addSubview:page];
-            NSLog(@"Added page at index %lu", (unsigned long)index);
+            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
         }
     }
 }

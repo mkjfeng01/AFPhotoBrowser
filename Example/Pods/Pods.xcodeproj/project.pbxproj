@@ -58,9 +58,14 @@
 		7A1F99C820E0DD9300BC3ACE /* AFTapDetectingImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99C620E0DD9300BC3ACE /* AFTapDetectingImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7A1F99C920E0DD9300BC3ACE /* AFTapDetectingImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99C720E0DD9300BC3ACE /* AFTapDetectingImageView.m */; };
 		7A1F99CC20E0DDB400BC3ACE /* AFZoomingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99CA20E0DDB300BC3ACE /* AFZoomingScrollView.m */; };
-		7A1F99CD20E0DDB400BC3ACE /* AFZoomingScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */; };
-		7A1F99D020E0DDCB00BC3ACE /* AFTapDetectingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */; };
+		7A1F99CD20E0DDB400BC3ACE /* AFZoomingScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7A1F99D020E0DDCB00BC3ACE /* AFTapDetectingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7A1F99D120E0DDCB00BC3ACE /* AFTapDetectingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F99CF20E0DDCB00BC3ACE /* AFTapDetectingView.m */; };
+		7AF030A720E0E43500F87295 /* ImageError.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AF030A420E0E43400F87295 /* ImageError.png */; };
+		7AF030A820E0E43500F87295 /* ImageError@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AF030A520E0E43400F87295 /* ImageError@3x.png */; };
+		7AF030A920E0E43500F87295 /* ImageError@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AF030A620E0E43500F87295 /* ImageError@2x.png */; };
+		7AF030AC20E0E45700F87295 /* UIImage+AFPhotoBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF030AA20E0E45700F87295 /* UIImage+AFPhotoBrowser.m */; };
+		7AF030AD20E0E45700F87295 /* UIImage+AFPhotoBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF030AB20E0E45700F87295 /* UIImage+AFPhotoBrowser.h */; };
 		7B298461C5EDBDC74F37582C5214F4E3 /* NSImage+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 820101A58E0DF565092068BD293F2E4E /* NSImage+WebCache.m */; };
 		7DDF90740276055249C84E8AF8101D82 /* AFPageScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C8A9705100ABD20E1D700B96B247D89 /* AFPageScrollView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7E44A91E3EAB5D959D7D4EC6D3946251 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DCD16883211BAE5CC732D820B7C3CB /* SDAnimatedImageRep.m */; };
@@ -240,6 +245,11 @@
 		7A1F99CB20E0DDB400BC3ACE /* AFZoomingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFZoomingScrollView.h; path = Pod/Classes/AFZoomingScrollView.h; sourceTree = "<group>"; };
 		7A1F99CE20E0DDCB00BC3ACE /* AFTapDetectingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFTapDetectingView.h; path = Pod/Classes/AFTapDetectingView.h; sourceTree = "<group>"; };
 		7A1F99CF20E0DDCB00BC3ACE /* AFTapDetectingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AFTapDetectingView.m; path = Pod/Classes/AFTapDetectingView.m; sourceTree = "<group>"; };
+		7AF030A420E0E43400F87295 /* ImageError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ImageError.png; path = Pod/Assets/ImageError.png; sourceTree = "<group>"; };
+		7AF030A520E0E43400F87295 /* ImageError@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ImageError@3x.png"; path = "Pod/Assets/ImageError@3x.png"; sourceTree = "<group>"; };
+		7AF030A620E0E43500F87295 /* ImageError@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ImageError@2x.png"; path = "Pod/Assets/ImageError@2x.png"; sourceTree = "<group>"; };
+		7AF030AA20E0E45700F87295 /* UIImage+AFPhotoBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+AFPhotoBrowser.m"; sourceTree = "<group>"; };
+		7AF030AB20E0E45700F87295 /* UIImage+AFPhotoBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+AFPhotoBrowser.h"; sourceTree = "<group>"; };
 		7C78E2987601EC385011CA5AD34A5FCF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		820101A58E0DF565092068BD293F2E4E /* NSImage+WebCache.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "NSImage+WebCache.m"; path = "SDWebImage/NSImage+WebCache.m"; sourceTree = "<group>"; };
 		82DB369B611DF6FFD64A0C48C3388134 /* AFPhotoBrowser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AFPhotoBrowser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -534,6 +544,16 @@
 			name = "Development Pods";
 			sourceTree = "<group>";
 		};
+		7A1F99D220E0E3F700BC3ACE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7AF030A420E0E43400F87295 /* ImageError.png */,
+				7AF030A620E0E43500F87295 /* ImageError@2x.png */,
+				7AF030A520E0E43400F87295 /* ImageError@3x.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		7B7E9FE76B084E5866AA85D6CE79D8E5 /* MBProgressHUD */ = {
 			isa = PBXGroup;
 			children = (
@@ -618,6 +638,9 @@
 				061C59BEA100158CEEFFD8BEDEC396EB /* AFPhotoBrowserPrivate.h */,
 				6059278299C0A8D375F832E2049AEF70 /* AFPhotoBrowser.h */,
 				66C978F99E2F89DF7AADA40D85838C7A /* AFPhotoBrowser.m */,
+				7AF030AB20E0E45700F87295 /* UIImage+AFPhotoBrowser.h */,
+				7AF030AA20E0E45700F87295 /* UIImage+AFPhotoBrowser.m */,
+				7A1F99D220E0E3F700BC3ACE /* Resources */,
 				0C3F360BF76F6A44B3B65CD31402D959 /* Pod */,
 				5C1F2F83D988325FA80CBCE94C000A81 /* Support Files */,
 			);
@@ -687,6 +710,7 @@
 				2638B5E6729742612A4C239D7DD9C73C /* AFPhoto.h in Headers */,
 				042F44EE647F61FFCF1418A618BD3964 /* AFPhotoBrowser-umbrella.h in Headers */,
 				25B7C3D3AF8CF875BDA9744D7DA41284 /* AFPhotoBrowser.h in Headers */,
+				7AF030AD20E0E45700F87295 /* UIImage+AFPhotoBrowser.h in Headers */,
 				52F7B91AB8BCFCC83A1EB189B2B80BE3 /* AFPhotoBrowserPrivate.h in Headers */,
 				7A1F99D020E0DDCB00BC3ACE /* AFTapDetectingView.h in Headers */,
 				6EED89DC935751158F749EA67D636456 /* AFPhotoProtocol.h in Headers */,
@@ -877,7 +901,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AF030A820E0E43500F87295 /* ImageError@3x.png in Resources */,
+				7AF030A720E0E43500F87295 /* ImageError.png in Resources */,
 				AA65FDED9C54DFFECE0CA8AA6184C659 /* AFPhotoBrowser.bundle in Resources */,
+				7AF030A920E0E43500F87295 /* ImageError@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -947,6 +974,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D24647DD6CB98814647EFB1FDBD8215 /* AFPageScrollView.m in Sources */,
+				7AF030AC20E0E45700F87295 /* UIImage+AFPhotoBrowser.m in Sources */,
 				A8A6B40CDE357D29AD062329D6DA19B3 /* AFPhoto.m in Sources */,
 				7A1F99C920E0DD9300BC3ACE /* AFTapDetectingImageView.m in Sources */,
 				7A1F99D120E0DDCB00BC3ACE /* AFTapDetectingView.m in Sources */,

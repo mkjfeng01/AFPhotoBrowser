@@ -36,8 +36,7 @@
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         AFPhotoBrowser *browser = [[AFPhotoBrowser alloc] initWithDelegate:self];
-        
-        
+
         [self.navigationController pushViewController:browser animated:YES];
 		// [self presentViewController:browser animated:YES completion:nil];
     });
@@ -59,7 +58,7 @@
 }
 
 - (NSInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSInteger)section {
-    if (section == 0) return 1;
+    if (section == 0) return 10;
     if (section == 1) return 2;
     if (section == 2) return 3;
     if (section == 3) return 4;

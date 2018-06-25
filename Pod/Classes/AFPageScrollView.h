@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "AFPhoto.h"
+#import "AFZoomingScrollView.h"
 
 @class AFPhotoBrowser;
 

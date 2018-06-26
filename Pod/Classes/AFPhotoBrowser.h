@@ -20,7 +20,7 @@
 
 
 
-- (void)setCurrentPhotoIndex:(NSInteger)index inSection:(NSInteger)section;
+- (void)setCurrentPhotoIndex:(NSUInteger)index inSection:(NSUInteger)section;
 
 
 @end
@@ -30,17 +30,16 @@
 
 @protocol AFPhotoBrowserDelegate <NSObject>
 
-- (NSInteger)numberOfSectionsInPhotoBrowser:(AFPhotoBrowser *)photoBrowser;
-- (NSInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSInteger)section;
-- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSInteger)index inSection:(NSInteger)section;
+- (NSUInteger)numberOfSectionsInPhotoBrowser:(AFPhotoBrowser *)photoBrowser;
+- (NSUInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSUInteger)section;
+- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index inSection:(NSUInteger)section;
 
 
 @optional
 
-- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser thumbPhotoAtIndex:(NSInteger)index inSection:(NSInteger)section;
-- (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSInteger)index inSection:(NSInteger)section;
-- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSInteger)index;
+- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser thumbPhotoAtIndex:(NSUInteger)index inSection:(NSUInteger)section;
+- (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index inSection:(NSUInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index;
 
 
 @end
-

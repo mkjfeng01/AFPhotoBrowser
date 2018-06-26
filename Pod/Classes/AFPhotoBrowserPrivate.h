@@ -18,9 +18,9 @@
     NSMutableSet *_visiblePages, *_recycledPages;
     
     // Index
-    NSInteger _sectionCount;
-    NSInteger _currentSectionIndex;
-    NSInteger _currentPhotoIndex;
+    NSUInteger _sectionCount;
+    NSUInteger _currentSectionIndex;
+    NSUInteger _currentPhotoIndex;
     NSUInteger _previousSectionIndex;
     
     // Navigation & controls
@@ -37,6 +37,10 @@
     
     
 }
+
+
+
+
 
 @end
 

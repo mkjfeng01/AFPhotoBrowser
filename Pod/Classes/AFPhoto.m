@@ -26,7 +26,6 @@
 
 @synthesize underlyingImage = _underlyingImage; // synth property from protocol
 
-
 #pragma mark - Class Methods
 
 + (AFPhoto *)photoWithImage:(UIImage *)image {
@@ -39,6 +38,10 @@
 
 + (AFPhoto *)photoWithAsset:(PHAsset *)asset targetSize:(CGSize)targetSize {
     return [[AFPhoto alloc] initWithAsset:asset targetSize:targetSize];
+}
+
++ (AFPhoto *)videoWithURL:(NSURL *)url {
+    return [[AFPhoto alloc] initWithVideoURL:url];
 }
 
 #pragma mark - Init
@@ -77,6 +80,16 @@
     return self;
 }
 
+- (id)initWithVideoURL:(NSURL *)url {
+    if ((self = [super init])) {
+        self.videoURL = url;
+        self.isVideo = YES;
+        self.emptyImage = YES;
+        [self setup];
+    }
+    return self;
+}
+
 - (void)setup {
     _assetRequestID = PHInvalidImageRequestID;
     _assetVideoRequestID = PHInvalidImageRequestID;
@@ -84,6 +97,37 @@
 
 - (void)dealloc {
     [self cancelAnyLoading];
+}
+
+#pragma mark - Video
+
+- (void)setVideoURL:(NSURL *)videoURL {
+    _videoURL = videoURL;
+    self.isVideo = YES;
+}
+
+- (void)getVideoURL:(void (^)(NSURL *url))completion {
+    if (_videoURL) {
+        completion(_videoURL);
+    } else if (_asset && _asset.mediaType == PHAssetMediaTypeVideo) {
+        [self cancelVideoRequest]; // Cancel any existing
+        PHVideoRequestOptions *options = [PHVideoRequestOptions new];
+        options.networkAccessAllowed = YES;
+        typeof(self) __weak weakSelf = self;
+        _assetVideoRequestID = [[PHImageManager defaultManager] requestAVAssetForVideo:_asset options:options resultHandler:^(AVAsset *asset, AVAudioMix *audioMix, NSDictionary *info) {
+            
+            // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{ // Testing
+            typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            strongSelf->_assetVideoRequestID = PHInvalidImageRequestID;
+            if ([asset isKindOfClass:[AVURLAsset class]]) {
+                completion(((AVURLAsset *)asset).URL);
+            } else {
+                completion(nil);
+            }
+            
+        }];
+    }
 }
 
 #pragma mark - AFPhoto Protocol Methods
@@ -117,22 +161,41 @@
     
     // Get underlying image
     if (_image) {
+        
+        // We have UIImage!
         self.underlyingImage = _image;
         [self imageLoadingComplete];
         
     } else if (_photoURL) {
+        
+        // Check what type of url it is
         if ([[[_photoURL scheme] lowercaseString] isEqualToString:@"assets-library"]) {
+            
+            // Load from assets library
             [self _performLoadUnderlyingImageAndNotifyWithAssetsLibraryURL: _photoURL];
+            
         } else if ([_photoURL isFileReferenceURL]) {
+            
+            // Load from local file async
             [self _performLoadUnderlyingImageAndNotifyWithLocalFileURL: _photoURL];
+            
         } else {
+            
+            // Load async from web (using SDWebImage)
             [self _performLoadUnderlyingImageAndNotifyWithWebURL: _photoURL];
+            
         }
         
     } else if (_asset) {
+        
+        // Load from photos asset
         [self _performLoadUnderlyingImageAndNotifyWithAsset: _asset targetSize:_assetTargetSize];
+        
     } else {
+        
+        // Image is empty
         [self imageLoadingComplete];
+        
     }
 }
 
@@ -141,15 +204,12 @@
     @try {
         SDWebImageManager *manager = [SDWebImageManager sharedManager];
         [manager loadImageWithURL:url options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            
             if (expectedSize > 0) {
                 float progress = receivedSize / (float)expectedSize;
                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithFloat:progress], @"progress", self, @"photo", nil];
                 [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_PROGRESS_NOTIFICATION object:dict];
             }
-            
         } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-    
             if (error) {
                 NSLog(@"SDWebImage failed to download image: %@", error);
             }
@@ -158,7 +218,6 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self imageLoadingComplete];
             });
-            
         }];
     } @catch (NSException *e) {
         NSLog(@"Photo from web: %@", e);
@@ -260,12 +319,20 @@
         _loadingInProgress = NO;
     }
     [self cancelImageRequest];
+    [self cancelVideoRequest];
 }
 
 - (void)cancelImageRequest {
     if (_assetRequestID != PHInvalidImageRequestID) {
         [[PHImageManager defaultManager] cancelImageRequest:_assetRequestID];
         _assetRequestID = PHInvalidImageRequestID;
+    }
+}
+
+- (void)cancelVideoRequest {
+    if (_assetVideoRequestID != PHInvalidImageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:_assetVideoRequestID];
+        _assetVideoRequestID = PHInvalidImageRequestID;
     }
 }
 

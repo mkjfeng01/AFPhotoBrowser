@@ -28,4 +28,12 @@
     
 }
 
+
+
+// Data
+- (UIImage *)imageForPhoto:(id<AFPhoto>)photo;
+
+
+
+
 @end

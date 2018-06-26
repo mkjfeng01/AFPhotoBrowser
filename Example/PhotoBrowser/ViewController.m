@@ -78,15 +78,15 @@
 
 #pragma mark - AFPhotoBrowserDelegate
 
-- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSInteger)index inSection:(NSInteger)section {
+- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
     return [_photos[section] objectAtIndex:index];
 }
 
-- (NSInteger)numberOfSectionsInPhotoBrowser:(AFPhotoBrowser *)photoBrowser {
+- (NSUInteger)numberOfSectionsInPhotoBrowser:(AFPhotoBrowser *)photoBrowser {
     return _photos.count;
 }
 
-- (NSInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSInteger)section {
+- (NSUInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSUInteger)section {
     return [_photos[section] count];
 }
 

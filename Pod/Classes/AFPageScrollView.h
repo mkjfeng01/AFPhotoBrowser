@@ -19,7 +19,8 @@
 
 
 
-@property () NSInteger section;
+@property () NSUInteger
+section;
 //@property (nonatomic) NSArray <AFPhoto> *photos;
 
 
@@ -40,12 +41,12 @@
 @protocol AFPageScrollViewDelegate <NSObject>
 
 - (NSUInteger)numberOfPhotosInPageScrollView:(AFPageScrollView *)scrollView;
-- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSInteger)index;
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSUInteger)index;
 
 @optional
 
-- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSInteger)index;
-- (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSInteger)index;
-- (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSInteger)index;
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSUInteger)index;
+- (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSUInteger)index;
+- (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index;
 
 @end

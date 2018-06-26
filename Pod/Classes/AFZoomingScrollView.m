@@ -2,6 +2,7 @@
 #import "AFZoomingScrollView.h"
 #import "AFPhoto.h"
 #import "AFPageScrollView.h"
+#import "AFPageScrollViewPrivate.h"
 #import "UIImage+AFPhotoBrowser.h"
 
 @interface AFZoomingScrollView () {
@@ -21,26 +22,22 @@
 - (id)initWithPageScrollView:(AFPageScrollView *)scrollView {
     if (self == [super init]) {
         
-        // Setup
         _section = NSUIntegerMax;
         _index = NSUIntegerMax;
         _pageScrollView = scrollView;
         
-        // Tap view for background
         _tapView = [[AFTapDetectingView alloc] initWithFrame:self.bounds];
         _tapView.tapDelegate = self;
         _tapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _tapView.backgroundColor = [UIColor blackColor];
         [self addSubview:_tapView];
         
-        // Image view
         _photoImageView = [[AFTapDetectingImageView alloc] initWithFrame:CGRectZero];
         _photoImageView.tapDelegate = self;
         _photoImageView.contentMode = UIViewContentModeCenter;
         _photoImageView.backgroundColor = [UIColor blackColor];
         [self addSubview:_photoImageView];
         
-        // Loading indicator
         _loadingIndicator = [[DACircularProgressView alloc] initWithFrame:CGRectMake(140.0f, 30.0f, 40.0f, 40.0f)];
         _loadingIndicator.userInteractionEnabled = NO;
         _loadingIndicator.thicknessRatio = 0.1;
@@ -55,7 +52,6 @@
                                                      name:AFPHOTO_PROGRESS_NOTIFICATION
                                                    object:nil];
         
-        // Setup
         self.backgroundColor = [UIColor blackColor];
         self.delegate = self;
         self.showsHorizontalScrollIndicator = NO;
@@ -83,28 +79,90 @@
 #pragma mark - Image
 
 - (void)setPhoto:(id<AFPhoto>)photo {
-    
-    
+    if (_photo && photo == nil) {
+        if ([_photo respondsToSelector:@selector(cancelAnyLoading)]) {
+            [_photo cancelAnyLoading];
+        }
+    }
+    _photo = photo;
+    UIImage *img = [_pageScrollView imageForPhoto:_photo];
+    if (img) {
+        [self displayImage];
+    } else {
+        [self showLoadingIndicator];
+    }
 }
 
-// Get and display image
 - (void)displayImage {
-    
+    if (_photo && _photoImageView.image == nil) {
+        
+        self.maximumZoomScale = 1;
+        self.minimumZoomScale = 1;
+        self.zoomScale = 1;
+        self.contentSize = CGSizeMake(0, 0);
+        
+        UIImage *img = [_pageScrollView imageForPhoto:_photo];
+        if (img) {
+            
+            [self hideLoadingIndicator];
+            
+            _photoImageView.image = img;
+            _photoImageView.hidden = NO;
+            
+            CGRect photoImageViewFrame;
+            photoImageViewFrame.origin = CGPointZero;
+            photoImageViewFrame.size = img.size;
+            _photoImageView.frame = photoImageViewFrame;
+            self.contentSize = photoImageViewFrame.size;
+            
+            [self setMaxMinZoomScalesForCurrentBounds];
+            
+        } else  {
+            [self displayImageFailure];
+        }
+        [self setNeedsLayout];
+    }
 }
 
-// Image failed so just show black!
 - (void)displayImageFailure {
+    [self hideLoadingIndicator];
+    _photoImageView.image = nil;
     
+    if (![_photo respondsToSelector:@selector(emptyImage)] || !_photo.emptyImage) {
+        if (!_loadingError) {
+            _loadingError = [UIImageView new];
+            _loadingError.image = [UIImage imageForResourcePath:@"AFPhotoBrowser.bundle/ImageError" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]];
+            _loadingError.userInteractionEnabled = NO;
+            _loadingError.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
+            UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+            [_loadingError sizeToFit];
+            [self addSubview:_loadingError];
+        }
+        _loadingError.frame = CGRectMake(floorf((self.bounds.size.width - _loadingError.frame.size.width) / 2.),
+                                         floorf((self.bounds.size.height - _loadingError.frame.size.height) / 2),
+                                         _loadingError.frame.size.width,
+                                         _loadingError.frame.size.height);
+    }
 }
 
 - (void)hideImageFailure {
-    
+    if (_loadingError) {
+        [_loadingError removeFromSuperview];
+        _loadingError = nil;
+    }
 }
 
 #pragma mark - Loading Progress
 
 - (void)setProgressFromNotification:(NSNotification *)notification {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *dict = [notification object];
+        id <AFPhoto> photoWithProgress = [dict objectForKey:@"photo"];
+        if (photoWithProgress == self.photo) {
+            float progress = [[dict valueForKey:@"progress"] floatValue];
+            self->_loadingIndicator.progress = MAX(MIN(1, progress), 0);
+        }
+    });
 }
 
 - (void)hideLoadingIndicator {

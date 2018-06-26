@@ -2,6 +2,8 @@
 #import "AFPageScrollViewPrivate.h"
 #import "AFPhotoBrowser.h"
 
+#define PADDING                  10
+
 @implementation AFPageScrollView
 
 - (id)initWithDelegate:(id<AFPageScrollViewDelegate>)delegate {
@@ -54,7 +56,7 @@
 - (void)initialProperties {
     
     _currentPageIndex = 0;
-    _previousPageIndex = NSIntegerMax;
+    _previousPageIndex = NSUIntegerMax;
     
     _rotating = NO;
     _performingLayout = NO;
@@ -69,6 +71,11 @@
     _recycledPages = [[NSMutableSet alloc] init];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleAFPhotoLoadingDidEndNotification:)
+                                                 name:AFPHOTO_LOADING_DID_END_NOTIFICATION
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willTransitionToTraitCollection:)
                                                  name:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION
                                                object:nil];
@@ -79,11 +86,32 @@
     
 }
 
+- (void)releaseAllUnderlyingPhotos:(BOOL)preserveCurrent {
+    NSArray *copy = [_photos copy];
+    for (id p in copy) {
+        if (p != [NSNull null]) {
+            if (preserveCurrent && p == [self photoAtIndex:self.currentIndex]) {
+                continue;
+            }
+            [p unloadUnderlyingImage];
+        }
+    }
+    copy = [_thumbPhotos copy];
+    for (id p in copy) {
+        if (p != [NSNull null]) {
+            [p unloadUnderlyingImage];
+        }
+    }
+}
+
 - (void)setup {
     
+    self.backgroundColor = [UIColor blackColor];
+    self.clipsToBounds = YES;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
-    _pagingScrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
+    CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
+    _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
     _pagingScrollView.backgroundColor = [UIColor purpleColor];
     _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _pagingScrollView.delegate = self;
@@ -92,7 +120,7 @@
     [self addSubview:_pagingScrollView];
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
-    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever; // Or vertical content error
+    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
 #endif
     
     if (!_disableIndicator) {
@@ -114,7 +142,7 @@
 
 - (void)prepareForReuse {
     _currentPageIndex = 0;
-    _previousPageIndex = NSIntegerMax;
+    _previousPageIndex = NSUIntegerMax;
     
     _rotating = NO;
     _performingLayout = NO;
@@ -142,17 +170,26 @@
 
 #pragma mark - Notifications
 
+- (void)handleAFPhotoLoadingDidEndNotification:(NSNotification *)notification {
+    id <AFPhoto> photo = [notification object];
+    AFZoomingScrollView *page = [self pageDisplayingPhoto:photo];
+    if (page) {
+        if ([photo underlyingImage]) {
+            [page displayImage];
+            [self loadAdjacentPhotosIfNecessary:photo];
+        } else {
+            [page displayImageFailure];
+        }
+    }
+}
+
 - (void)willTransitionToTraitCollection:(NSNotification *)notify {
     _rotating = YES;
-    
     [self layoutVisiblePages];
-    
 }
 
 - (void)didTransitionToTraitCollection:(NSNotification *)notify {
-    
     _rotating = NO;
-    
 }
 
 #pragma mark - Layout
@@ -166,11 +203,9 @@
 - (void)performLayout {
     _performingLayout = YES;
     
-    // Setup pages
     [_visiblePages removeAllObjects];
     [_recycledPages removeAllObjects];
     
-    // Content offset
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
     [self tilePages];
     _performingLayout = NO;
@@ -179,7 +214,6 @@
 - (void)layoutVisiblePages {
     _performingLayout = YES;
     
-    // Remember index
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
@@ -188,24 +222,36 @@
         _pagingIndicator.center = [self centerForPagingIndicator];
     }
     
+    for (AFZoomingScrollView *page in _visiblePages) {
+        NSUInteger index = page.index;
+        page.frame = [self frameForPageAtIndex:index];
+        
+//        if (!CGRectEqualToRect(_previousLayoutBounds, self.view.bounds)) {
+//            [page setMaxMinZoomScalesForCurrentBounds];
+//            _previousLayoutBounds = self.view.bounds;
+//        }
+        
+    }
+    
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
+    [self didStartViewingPageAtIndex:_currentPageIndex];
     
     _currentPageIndex = indexPriorToLayout;
     _performingLayout = NO;
 }
 
-
-#pragma mark - Rotation
-
-
 #pragma mark - Data
+
+- (NSUInteger)currentIndex {
+    return _currentPageIndex;
+}
 
 - (void)reloadData {
     
     _photoCount = NSNotFound;
     
-    NSInteger numberOfPhotos = [self numberOfPhotos];
-    
+    NSUInteger numberOfPhotos = [self numberOfPhotos];
+    [self releaseAllUnderlyingPhotos:YES];
     [_photos removeAllObjects];
     [_thumbPhotos removeAllObjects];
     for (int i = 0; i < numberOfPhotos; i++) {
@@ -219,13 +265,11 @@
         _currentPageIndex = 0;
     }
     
-    if (_viewIsActive) {
-        while (_pagingScrollView.subviews.count) {
-            [_pagingScrollView.subviews.lastObject removeFromSuperview];
-        }
-        [self performLayout];
-        [self setNeedsLayout];
+    while (_pagingScrollView.subviews.count) {
+        [_pagingScrollView.subviews.lastObject removeFromSuperview];
     }
+    [self performLayout];
+    [self setNeedsLayout];
 }
 
 - (NSUInteger)numberOfPhotos {
@@ -240,7 +284,7 @@
     return _photoCount;
 }
 
-- (id<AFPhoto>)photoAtIndex:(NSInteger)index {
+- (id<AFPhoto>)photoAtIndex:(NSUInteger)index {
     id<AFPhoto> photo = nil;
     if (index < _photos.count) {
         if ([_photos objectAtIndex:index] == [NSNull null]) {
@@ -258,7 +302,7 @@
 }
 
 
-- (id<AFPhoto>)thumbPhotoAtIndex:(NSInteger)index {
+- (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index {
     id<AFPhoto> photo = nil;
     if (index < _thumbPhotos.count) {
         if ([_thumbPhotos objectAtIndex:index] == [NSNull null]) {
@@ -273,21 +317,50 @@
     return photo;
 }
 
-//- (UIImage *)imageForPhoto:(id<AFPhoto>)photo {
-//
-//
-//}
+
+- (UIImage *)imageForPhoto:(id<AFPhoto>)photo {
+    if (photo) {
+        if ([photo underlyingImage]) {
+            return [photo underlyingImage];
+        } else {
+            [photo loadUnderlyingImageAndNotify];
+        }
+    }
+    return nil;
+}
+
+- (void)loadAdjacentPhotosIfNecessary:(id<AFPhoto>)photo {
+    AFZoomingScrollView *page = [self pageDisplayingPhoto:photo];
+    if (page) {
+        NSUInteger pageIndex = page.index;
+        if (_currentPageIndex == pageIndex) {
+            if (pageIndex > 0) {
+                // Preload index - 1
+                id <AFPhoto> photo = [self photoAtIndex:pageIndex-1];
+                if (![photo underlyingImage]) {
+                    [photo loadUnderlyingImageAndNotify];
+                    // NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex-1);
+                }
+            }
+            if (pageIndex < [self numberOfPhotos] - 1) {
+                // Preload index + 1
+                id <AFPhoto> photo = [self photoAtIndex:pageIndex+1];
+                if (![photo underlyingImage]) {
+                    [photo loadUnderlyingImageAndNotify];
+                    // NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex+1);
+                }
+            }
+        }
+    }
+}
 
 #pragma mark - Paging
 
 - (void)tilePages {
     
-//    NSInteger numberOfPhotos = [self numberOfPhotos];
-//    NSLog(@"🐶 %zd", numberOfPhotos);
-    
     CGRect visibleBounds = _pagingScrollView.bounds;
-    NSInteger iFirstIndex = (NSInteger)floorf(CGRectGetMinY(visibleBounds) / CGRectGetHeight(visibleBounds));
-    NSInteger iLastIndex  = (NSInteger)floorf(CGRectGetMaxY(visibleBounds) / CGRectGetHeight(visibleBounds));
+    NSInteger iFirstIndex = (NSInteger)floorf((CGRectGetMinY(visibleBounds)+PADDING*2) / CGRectGetHeight(visibleBounds));
+    NSInteger iLastIndex  = (NSInteger)floorf((CGRectGetMaxY(visibleBounds)-PADDING*2-1) / CGRectGetHeight(visibleBounds));
     if (iFirstIndex < 0) iFirstIndex = 0;
     if (iFirstIndex > [self numberOfPhotos] - 1) iFirstIndex = [self numberOfPhotos] - 1;
     if (iLastIndex < 0) iLastIndex = 0;
@@ -296,20 +369,19 @@
     NSInteger pageIndex;
     for (AFZoomingScrollView *page in _visiblePages) {
         pageIndex = page.index;
-        NSLog(@"pageIndex %zd", pageIndex);
-        if (pageIndex < iFirstIndex || pageIndex > iLastIndex) {
+        if (pageIndex < (NSUInteger)iFirstIndex || pageIndex > (NSUInteger)iLastIndex) {
             [_recycledPages addObject:page];
             [page prepareForReuse];
             [page removeFromSuperview];
-            NSLog(@"Removed page at index %lu", (unsigned long)pageIndex);
+            NSLog(@"Removed page at index %zd", (unsigned long)pageIndex);
         }
     }
     [_visiblePages minusSet:_recycledPages];
-    while (_recycledPages.count > 2) { // Only keep 2 recycled pages
+    while (_recycledPages.count > 2) {
         [_recycledPages removeObject:[_recycledPages anyObject]];
     }
 
-    for (NSUInteger index = iFirstIndex; index <= iLastIndex; index++) {
+    for (NSUInteger index = (NSUInteger)iFirstIndex; index <= (NSUInteger)iLastIndex; index++) {
         if (![self isDisplayingPageForIndex:index]) {
 
             AFZoomingScrollView *page = [self dequeueRecycledPage];
@@ -320,11 +392,23 @@
             [self configurePage:page forIndex:index];
 
             [_pagingScrollView addSubview:page];
-            NSLog(@"Added page at index %lu", (unsigned long)index);
+            NSLog(@"Added page at index %zd", (unsigned long)index);
+
         }
     }
     
 }
+
+- (AFZoomingScrollView *)pageDisplayingPhoto:(id<AFPhoto>)photo {
+    AFZoomingScrollView *thePage = nil;
+    for (AFZoomingScrollView *page in _visiblePages) {
+        if (page.photo == photo) {
+            thePage = page; break;
+        }
+    }
+    return thePage;
+}
+
 
 - (BOOL)isDisplayingPageForIndex:(NSUInteger)index {
     for (AFZoomingScrollView *page in _visiblePages)
@@ -334,6 +418,7 @@
 
 - (void)configurePage:(AFZoomingScrollView *)page forIndex:(NSUInteger)index {
     page.frame = [self frameForPageAtIndex:index];
+    page.section = self.section;
     page.index = index;
     page.photo = [self photoAtIndex:index];
 }
@@ -357,25 +442,67 @@
         _pagingIndicator.currentPage = index;
     }
     
-    if (index != _previousPageIndex) {
-        if ([_pageDelegate respondsToSelector:@selector(scrollView:didDisplayPhotoAtIndex:)]) {
-            [_pageDelegate scrollView:self didDisplayPhotoAtIndex:index];
+    
+    // Release images further away than +/-1
+    NSUInteger i;
+    if (index > 0) {
+        // Release anything < index - 1
+        for (i = 0; i < index-1; i++) {
+            id photo = [_photos objectAtIndex:i];
+            if (photo != [NSNull null]) {
+                [photo unloadUnderlyingImage];
+                [_photos replaceObjectAtIndex:i withObject:[NSNull null]];
+                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
+            }
         }
-        _previousPageIndex = index;
+    }
+    if (index < [self numberOfPhotos] - 1) {
+        // Release anything > index + 1
+        for (i = index + 2; i < _photos.count; i++) {
+            id photo = [_photos objectAtIndex:i];
+            if (photo != [NSNull null]) {
+                [photo unloadUnderlyingImage];
+                [_photos replaceObjectAtIndex:i withObject:[NSNull null]];
+                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
+            }
+        }
     }
     
+    // Load adjacent images if needed and the photo is already
+    // loaded. Also called after photo has been loaded in background
+    id <AFPhoto> currentPhoto = [self photoAtIndex:index];
+    if ([currentPhoto underlyingImage]) {
+        // photo loaded so load ajacent now
+        [self loadAdjacentPhotosIfNecessary:currentPhoto];
+    }
     
-    
-    
+    // Notify delegate
+    if (index != _previousPageIndex) {
+        if ([_pageDelegate respondsToSelector:@selector(scrollView:didDisplayPhotoAtIndex:)])
+            [_pageDelegate scrollView:self didDisplayPhotoAtIndex:index];
+        _previousPageIndex = index;
+    }
     
 }
 
 #pragma mark - Frame Calculations
 
+- (CGRect)frameForPagingScrollView {
+    CGRect frame = self.bounds;// [[UIScreen mainScreen] bounds];
+    frame.origin.y -= PADDING;
+    frame.size.height += (2 * PADDING);
+    return CGRectIntegral(frame);
+}
+
 - (CGRect)frameForPageAtIndex:(NSUInteger)index {
+    // We have to use our paging scroll view's bounds, not frame, to calculate the page placement. When the device is in
+    // landscape orientation, the frame will still be in portrait because the pagingScrollView is the root view controller's
+    // view, so its frame is in window coordinate space, which is never rotated. Its bounds, however, will be in landscape
+    // because it has a rotation transform applied.
     CGRect bounds = _pagingScrollView.bounds;
     CGRect pageFrame = bounds;
-    pageFrame.origin.y = bounds.size.height * index;
+    pageFrame.size.height -= (2 * PADDING);
+    pageFrame.origin.y = (bounds.size.height * index) + PADDING;
     return CGRectIntegral(pageFrame);
 }
 
@@ -389,17 +516,15 @@
     
     CGRect bounds = _pagingScrollView.bounds;
     CGFloat centerX;
-    
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
     centerX = bounds.size.width - [UIApplication sharedApplication].keyWindow.safeAreaInsets.right - offset;
 #else
     centerX = bounds.size.width - offset;
 #endif
-    
     return CGPointMake(centerX, _pagingScrollView.center.y);
 }
 
-- (CGPoint)contentOffsetForPageAtIndex:(NSInteger)index {
+- (CGPoint)contentOffsetForPageAtIndex:(NSUInteger)index {
     CGFloat pageHeight = _pagingScrollView.bounds.size.height;
     CGFloat newOffset = index * pageHeight;
     return CGPointMake(0, newOffset);
@@ -436,40 +561,4 @@
     
 }
 
-
-
-
-
-
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

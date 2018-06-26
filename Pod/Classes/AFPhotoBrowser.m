@@ -2,9 +2,7 @@
 #import "AFPhotoBrowserPrivate.h"
 #import "AFPageScrollView.h"
 
-@interface AFPhotoBrowser ()
-
-@end
+#define PADDING                  10
 
 @implementation AFPhotoBrowser
 
@@ -50,7 +48,7 @@
     _sectionCount = NSNotFound;
     _currentSectionIndex = 0;
     _currentPhotoIndex = 0;
-    _previousSectionIndex = NSIntegerMax;
+    _previousSectionIndex = NSUIntegerMax;
     
     
     _performingLayout = NO;
@@ -81,7 +79,11 @@
 
 - (void)viewDidLoad {
     
-    _pagingScrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    self.view.backgroundColor = [UIColor blackColor];
+    self.view.clipsToBounds = YES;
+    
+    CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
+    _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
     _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _pagingScrollView.delegate = self;
     _pagingScrollView.pagingEnabled = YES;
@@ -214,13 +216,13 @@
 - (void)tilePages {
     
     CGRect visibleBounds = _pagingScrollView.bounds;
-    NSInteger iFirstSection = (NSInteger)floorf(CGRectGetMinX(visibleBounds) / CGRectGetWidth(visibleBounds));
-    NSInteger iLastSection = (NSInteger)floorf(CGRectGetMaxX(visibleBounds) / CGRectGetWidth(visibleBounds));
+    NSInteger iFirstSection = (NSInteger)floorf((CGRectGetMinX(visibleBounds)+PADDING*2) / CGRectGetWidth(visibleBounds));
+    NSInteger iLastSection  = (NSInteger)floorf((CGRectGetMaxX(visibleBounds)-PADDING*2-1) / CGRectGetWidth(visibleBounds));
     if (iFirstSection < 0) iFirstSection = 0;
     if (iFirstSection > [self numberOfSections] - 1) iFirstSection = [self numberOfSections] - 1;
     if (iLastSection < 0) iLastSection = 0;
     if (iLastSection > [self numberOfSections] - 1) iLastSection = [self numberOfSections] - 1;
-
+    
     NSInteger pageSection;
     for (AFPageScrollView *page in _visiblePages) {
         pageSection = page.section;
@@ -228,7 +230,7 @@
             [_recycledPages addObject:page];
             [page prepareForReuse];
             [page removeFromSuperview];
-            NSLog(@"[Browser] Removed page at section %lu", (unsigned long)pageSection);
+//            NSLog(@"[Browser] Removed page at index %lu", (unsigned long)pageSection);
         }
     }
     [_visiblePages minusSet:_recycledPages];
@@ -236,7 +238,7 @@
         [_recycledPages removeObject:[_recycledPages anyObject]];
     }
 
-    for (NSInteger index = iFirstSection; index <= iLastSection; index++) {
+    for (NSUInteger index = iFirstSection; index <= iLastSection; index++) {
         if (![self isDisplayingPageForSection:index]) {
             AFPageScrollView *page = [self dequeueRecycledPage];
             if (!page) {
@@ -246,18 +248,18 @@
             [self configurePage:page forSection:index];
 
             [_pagingScrollView addSubview:page];
-            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
+//            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
         }
     }
 }
 
-- (BOOL)isDisplayingPageForSection:(NSInteger)section {
+- (BOOL)isDisplayingPageForSection:(NSUInteger)section {
     for (AFPageScrollView *page in _visiblePages)
         if (page.section == section) return YES;
     return NO;
 }
 
-- (void)configurePage:(AFPageScrollView *)page forSection:(NSInteger)section {
+- (void)configurePage:(AFPageScrollView *)page forSection:(NSUInteger)section {
     page.frame = [self frameForPageAtSection:section];
     page.pageDelegate = self;
     page.section = section;
@@ -285,6 +287,29 @@
         _pagingIndicator.currentPage = index;
     }
     
+//    NSUInteger i;
+//    if (index > 0) {
+//        for (i = 0; i < index-1; i++) {
+//            id section = [_sections objectAtIndex:i];
+//            if (photo != [NSNull null]) {
+//                [photo unloadUnderlyingImage];
+//                [_sections replaceObjectAtIndex:i withObject:[NSNull null]];
+//                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
+//            }
+//        }
+//    }
+//    if (index < [self numberOfSections] - 1) {
+//        for (i = index + 2; i < _photos.count; i++) {
+//            id photo = [_photos objectAtIndex:i];
+//            if (photo != [NSNull null]) {
+//                [photo unloadUnderlyingImage];
+//                [_photos replaceObjectAtIndex:i withObject:[NSNull null]];
+//                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
+//            }
+//        }
+//    }
+    
+    
     if (index != _previousSectionIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplaySectionAtIndex:)]) {
             [_delegate photoBrowser:self didDisplaySectionAtIndex:index];
@@ -297,20 +322,19 @@
     
 }
     
-    
 #pragma mark - Data
 
 - (void)reloadData {
     _sectionCount = NSNotFound;
     
-    NSInteger numberOfSections = [self numberOfSections];
+    NSUInteger numberOfSections = [self numberOfSections];
     
     [_photos removeAllObjects];
     [_thumbPhotos removeAllObjects];
     
     for (int section = 0; section < numberOfSections; section++) {
         
-        NSInteger numberOfPhotos = [self numberOfPhotosInSection:section];
+        NSUInteger numberOfPhotos = [self numberOfPhotosInSection:section];
         
         NSMutableArray *photos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
         NSMutableArray *thumbPhotos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
@@ -341,7 +365,7 @@
     
 }
 
-- (NSInteger)numberOfSections {
+- (NSUInteger)numberOfSections {
     if (_sectionCount == NSNotFound) {
         if ([_delegate respondsToSelector:@selector(numberOfSectionsInPhotoBrowser:)]) {
             _sectionCount = [_delegate numberOfSectionsInPhotoBrowser:self];
@@ -353,9 +377,9 @@
     return _sectionCount;
 }
 
-- (NSInteger)numberOfPhotosInSection:(NSInteger)section {
-    NSInteger _photoCount = 0;
-    NSInteger sectionCount = [self numberOfSections];
+- (NSUInteger)numberOfPhotosInSection:(NSUInteger)section {
+    NSUInteger _photoCount = 0;
+    NSUInteger sectionCount = [self numberOfSections];
     if (sectionCount == 0) {
         section = 0;
     } else {
@@ -372,7 +396,7 @@
     return _photoCount;
 }
 
-- (id<AFPhoto>)photoAtIndex:(NSUInteger)index inSection:(NSInteger)section {
+- (id<AFPhoto>)photoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
     id <AFPhoto> photo = nil;
     if (section < _photos.count) {
         NSArray *photos = [_photos objectAtIndex:section];
@@ -388,6 +412,8 @@
                     [sectionPhotos replaceObjectAtIndex:index withObject:photo];
                     [_photos replaceObjectAtIndex:section withObject:sectionPhotos];
                 }
+            } else {
+                photo = [photos objectAtIndex:index];
             }
         }
     }
@@ -395,7 +421,7 @@
     return photo;
 }
 
-- (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index inSection:(NSInteger)section {
+- (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
     id <AFPhoto> photo = nil;
     
     
@@ -407,27 +433,33 @@
 #pragma mark - Page ScrollView Delegate
 
 - (NSUInteger)numberOfPhotosInPageScrollView:(AFPageScrollView *)scrollView {
-    NSLog(@"☞ %zd", scrollView.section);
     return [self numberOfPhotosInSection:scrollView.section];
 }
 
-- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSInteger)index {
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView photoAtIndex:(NSUInteger)index {
     return [self photoAtIndex:index inSection:scrollView.section];
 }
 
-- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSInteger)index {
+- (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSUInteger)index {
     return [self thumbPhotoAtIndex:index inSection:scrollView.section];
 }
 
-- (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSInteger)index {
+- (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSUInteger)index {
     return nil;
 }
 
-- (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSInteger)index {
+- (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index {
     
 }
 
 #pragma mark - Frame Calculations
+
+- (CGRect)frameForPagingScrollView {
+    CGRect frame = self.view.bounds;// [[UIScreen mainScreen] bounds];
+    frame.origin.x -= PADDING;
+    frame.size.width += (2 * PADDING);
+    return CGRectIntegral(frame);
+}
 
 - (CGSize)contentSizeForPagingScrollView {
     CGRect bounds = _pagingScrollView.bounds;
@@ -449,17 +481,18 @@
     return CGPointMake(_pagingScrollView.center.x, centerY);
 }
 
-- (CGPoint)contentOffsetForPageAtSection:(NSInteger)section {
+- (CGPoint)contentOffsetForPageAtSection:(NSUInteger)section {
     CGFloat sectionWidth = _pagingScrollView.bounds.size.width;
     CGFloat newOffset = sectionWidth * section;
     return CGPointMake(newOffset, 0);
 }
 
-- (CGRect)frameForPageAtSection:(NSInteger)section {
+- (CGRect)frameForPageAtSection:(NSUInteger)section {
     CGRect bounds = _pagingScrollView.bounds;
     CGRect pageFrame = bounds;
-    pageFrame.origin.x = (bounds.size.width * section);
-    return pageFrame;
+    pageFrame.size.width -= (2 * PADDING);
+    pageFrame.origin.x = (bounds.size.width * section) + PADDING;
+    return CGRectIntegral(pageFrame);
 }
 
 #pragma mark - UIScrollView Delegata
@@ -475,16 +508,16 @@
     // Tile pages
     [self tilePages];
     
-    // Calculate current page
-    CGRect visibleBounds = _pagingScrollView.bounds;
-    NSInteger index = (NSInteger)(floorf(CGRectGetMidX(visibleBounds) / CGRectGetWidth(visibleBounds)));
-    if (index < 0) index = 0;
-    if (index > [self numberOfSections] - 1) index = [self numberOfSections] - 1;
-    NSUInteger previousCurrentSection = _currentSectionIndex;
-    _currentSectionIndex = index;
-    if (_currentSectionIndex != previousCurrentSection) {
-        [self didStartViewingSectionAtIndex:index];
-    }
+//    // Calculate current page
+//    CGRect visibleBounds = _pagingScrollView.bounds;
+//    NSInteger index = (NSInteger)(floorf(CGRectGetMidX(visibleBounds) / CGRectGetWidth(visibleBounds)));
+//    if (index < 0) index = 0;
+//    if (index > [self numberOfSections] - 1) index = [self numberOfSections] - 1;
+//    NSUInteger previousCurrentSection = _currentSectionIndex;
+//    _currentSectionIndex = index;
+//    if (_currentSectionIndex != previousCurrentSection) {
+//        [self didStartViewingSectionAtIndex:index];
+//    }
     
 }
 
@@ -505,7 +538,7 @@
     
 }
 
-- (void)jumpToPageAtIndex:(NSInteger)index inSection:(NSInteger)section animated:(BOOL)animated {
+- (void)jumpToPageAtIndex:(NSUInteger)index inSection:(NSUInteger)section animated:(BOOL)animated {
     
     if (section >= [self numberOfSections] || index >= [self numberOfPhotosInSection:section]) return;
     
@@ -570,9 +603,9 @@
 
 #pragma mark - Properties
 
-- (void)setCurrentPhotoIndex:(NSInteger)index inSection:(NSInteger)section {
+- (void)setCurrentPhotoIndex:(NSUInteger)index inSection:(NSUInteger)section {
     
-    NSInteger sectionCount = [self numberOfSections];
+    NSUInteger sectionCount = [self numberOfSections];
     if (sectionCount == 0) {
         section = 0;
     } else {
@@ -580,7 +613,7 @@
     }
     _currentSectionIndex = section;
     
-    NSInteger photoCountInCurrentSection = [self numberOfPhotosInSection:section];
+    NSUInteger photoCountInCurrentSection = [self numberOfPhotosInSection:section];
     if (photoCountInCurrentSection == 0) {
         _currentPhotoIndex = 0;
     } else {
@@ -598,36 +631,3 @@
 
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

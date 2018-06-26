@@ -11,7 +11,6 @@
     NSMutableArray *_photos;
     NSMutableArray *_thumbPhotos;
     
-    
     // Paging & layout
     NSMutableSet *_visiblePages, *_recycledPages;
     

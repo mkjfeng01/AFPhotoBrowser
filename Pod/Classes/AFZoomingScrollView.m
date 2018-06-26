@@ -354,7 +354,6 @@
         [self zoomToRect:CGRectMake(touchPoint.x - xsize/2, touchPoint.y - ysize/2, xsize, ysize) animated:YES];
         
     }
-    
 }
 
 // Image View

@@ -3,7 +3,6 @@
 @interface AFPhotoBrowser () {
     
     // Views
-    
     UIScrollView *_pagingScrollView;
     UIPageControl *_pagingIndicator;
     
@@ -25,22 +24,12 @@
     // Navigation & controls
     NSTimer *_controlVisibilityTimer;
     
-    
-    
     BOOL _isVCBasedStatusBarAppearance;
     BOOL _statusBarShouldBeHidden;
     BOOL _performingLayout;
     BOOL _rotating;
     BOOL _viewIsActive; // active as in it's in the view heirarchy
     
-    
-    
 }
 
-
-
-
-
 @end
-
-

@@ -1,4 +1,3 @@
-
 #import "AFPhotoBrowser.h"
 #import "AFPhoto.h"
 #import "AFPhotoBrowserPrivate.h"
@@ -122,18 +121,16 @@
 - (void)viewDidAppear:(BOOL)animated {
     _viewIsActive = YES;
     
-    
     [super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    
-    _viewIsActive = NO;
-    
     // Controls
     [self.navigationController.navigationBar.layer removeAllAnimations];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self setControlsHidden:NO animated:NO];
+    
+    _viewIsActive = NO;
     
     [super viewWillDisappear:animated];
 }
@@ -158,7 +155,6 @@
     
 }
 
-
 - (void)layoutVisibleSections {
     _performingLayout = YES;
     
@@ -170,14 +166,11 @@
         _pagingIndicator.center = [self centerForPagingIndicator];
     }
     
-    
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:indexPriorToLayout];
-    
     
     _currentSectionIndex = indexPriorToLayout;
     _performingLayout = NO;
 }
-
 
 #pragma mark - Transition
 
@@ -229,7 +222,7 @@
             [_recycledPages addObject:page];
             [page prepareForReuse];
             [page removeFromSuperview];
-//            NSLog(@"[Browser] Removed page at index %lu", (unsigned long)pageSection);
+            NSLog(@"[Browser] Removed page at index %lu", (unsigned long)pageSection);
         }
     }
     [_visiblePages minusSet:_recycledPages];
@@ -247,7 +240,7 @@
             [self configurePage:page forSection:index];
 
             [_pagingScrollView addSubview:page];
-//            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
+            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
         }
     }
 }
@@ -260,7 +253,7 @@
 
 - (void)configurePage:(AFPageScrollView *)page forSection:(NSUInteger)section {
     page.frame = [self frameForPageAtSection:section];
-    page.pageDelegate = self;
+    page.delegate = self;
     page.section = section;
     page.zoomPhotosToFill = _zoomPhotosToFill;
     page.disableIndicator = _disableIndicator;
@@ -309,14 +302,12 @@
 //        }
 //    }
     
-    
     if (index != _previousSectionIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplaySectionAtIndex:)]) {
             [_delegate photoBrowser:self didDisplaySectionAtIndex:index];
         }
         _previousSectionIndex = index;
     }
-    
     
     [self updateNavigation];
     
@@ -333,7 +324,6 @@
     [_thumbPhotos removeAllObjects];
     
     for (int section = 0; section < numberOfSections; section++) {
-        
         NSUInteger numberOfPhotos = [self numberOfPhotosInSection:section];
         
         NSMutableArray *photos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
@@ -362,7 +352,6 @@
         [self performLayout];
         [self.view setNeedsLayout];
     }
-    
 }
 
 - (NSUInteger)numberOfSections {
@@ -402,8 +391,8 @@
         NSArray *photos = [_photos objectAtIndex:section];
         if (index < photos.count) {
             if ([photos objectAtIndex:index] == [NSNull null]) {
-                if ([_delegate respondsToSelector:@selector(photoBrowser:photoAtIndex:inSection:)]) {
-                    photo = [_delegate photoBrowser:self photoAtIndex:index inSection:section];
+                if ([_delegate respondsToSelector:@selector(photoBrowser:photoAtIndex:section:)]) {
+                    photo = [_delegate photoBrowser:self photoAtIndex:index section:section];
                 } else if (_fixedPhotosArray && section < _fixedPhotosArray.count && index < [[_fixedPhotosArray objectAtIndex:section] count]) {
                     photo = [[_fixedPhotosArray objectAtIndex:section] objectAtIndex:index];
                 }
@@ -424,8 +413,23 @@
 - (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
     id <AFPhoto> photo = nil;
     
-    
-    
+    if (section < _thumbPhotos.count) {
+        NSArray *photos = [_thumbPhotos objectAtIndex:section];
+        if (index < photos.count) {
+            if ([photos objectAtIndex:index] == [NSNull null]) {
+                if ([_delegate respondsToSelector:@selector(photoBrowser:thumbPhotoAtIndex:section:)]) {
+                    photo = [_delegate photoBrowser:self thumbPhotoAtIndex:index section:section];
+                }
+                if (photo) {
+                    NSMutableArray *sectionPhotos = [_thumbPhotos objectAtIndex:section];
+                    [sectionPhotos replaceObjectAtIndex:index withObject:photo];
+                    [_thumbPhotos replaceObjectAtIndex:section withObject:sectionPhotos];
+                }
+            } else {
+                photo = [photos objectAtIndex:index];
+            }
+        }
+    }
     
     return photo;
 }
@@ -449,7 +453,9 @@
 }
 
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index {
-    
+    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
+        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:scrollView.section];
+    }
 }
 
 #pragma mark - Frame Calculations
@@ -468,7 +474,6 @@
 
 - (CGPoint)centerForPagingIndicator {
     CGFloat offset = 22;
-    
     CGRect bounds = _pagingScrollView.bounds;
     CGFloat centerY;
     
@@ -505,7 +510,6 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
     if (!_viewIsActive || _performingLayout || _rotating) return;
     
     // Tile pages
@@ -521,7 +525,6 @@
     if (_currentSectionIndex != previousCurrentSection) {
         [self didStartViewingSectionAtIndex:index];
     }
-    
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -531,18 +534,14 @@
 #pragma mark - Navigation
 
 - (void)updateNavigation {
-    
-    if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:inSection:)]) {
-        self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPhotoIndex inSection:_currentSectionIndex];
+    if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:section:)]) {
+        self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPhotoIndex section:_currentSectionIndex];
     } else {
         self.title = [NSString stringWithFormat:@"section:%lu, index:%lu", _currentSectionIndex, _currentPhotoIndex];
     }
-    
-    
 }
 
 - (void)jumpToPageAtIndex:(NSUInteger)index inSection:(NSUInteger)section animated:(BOOL)animated {
-    
     if (section >= [self numberOfSections] || index >= [self numberOfPhotosInSection:section]) return;
     
     _pagingIndicator.currentPage = section;
@@ -555,12 +554,9 @@
     [self hideControlsAfterDelay];
 }
 
-
-
 #pragma mark - Control Hiding / Showing
 
 - (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated {
-    
     if (![self numberOfSections] || _alwaysShowControls) {
         hidden = NO;
     }
@@ -580,13 +576,10 @@
         }];
     }
     
-    
     [UIView animateWithDuration:animationDuration animations:^{
         CGFloat alpha = hidden ? 0 : 1;
         [self.navigationController.navigationBar setAlpha:alpha];
     }];
-    
-    
 }
 
 - (void)cancelControlHiding {
@@ -598,7 +591,11 @@
 
 // Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
-    _controlVisibilityTimer = [NSTimer timerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
+    _controlVisibilityTimer = [NSTimer timerWithTimeInterval:self.delayToHideElements
+                                                      target:self
+                                                    selector:@selector(hideControls)
+                                                    userInfo:nil
+                                                     repeats:NO];
 }
 
 - (void)hideControls { [self setControlsHidden:YES animated:YES]; }
@@ -607,7 +604,6 @@
 #pragma mark - Properties
 
 - (void)setCurrentPhotoIndex:(NSUInteger)index inSection:(NSUInteger)section {
-    
     NSUInteger sectionCount = [self numberOfSections];
     if (sectionCount == 0) {
         section = 0;
@@ -631,6 +627,5 @@
         }
     }
 }
-
 
 @end

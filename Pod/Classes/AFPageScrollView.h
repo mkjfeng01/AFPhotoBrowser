@@ -11,32 +11,22 @@
 //
 @interface AFPageScrollView : UIView <UIScrollViewDelegate>
 
-
-@property (nonatomic, weak) IBOutlet id<AFPageScrollViewDelegate> pageDelegate;
+@property (nonatomic, weak) IBOutlet id<AFPageScrollViewDelegate> delegate;
 @property (nonatomic, weak) AFPhotoBrowser *photoBrowser;
-
-@property (nonatomic, assign) BOOL disableIndicator;
+@property (nonatomic) BOOL disableIndicator;
 @property (nonatomic) BOOL zoomPhotosToFill;
-
-
-@property () NSUInteger
-section;
-//@property (nonatomic) NSArray <AFPhoto> *photos;
-
+@property () NSUInteger section;
 
 - (id)initWithDelegate:(id<AFPageScrollViewDelegate>)delegate;
 - (id)initWithPhotos:(NSArray *)photos;
 - (id)initWithPhotoBrowser:(AFPhotoBrowser *)photoBrowser;
-
 
 - (void)reloadData;
 
 - (void)setup;
 - (void)prepareForReuse;
 
-
 @end
-
 
 @protocol AFPageScrollViewDelegate <NSObject>
 

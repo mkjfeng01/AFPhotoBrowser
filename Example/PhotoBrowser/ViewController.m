@@ -94,7 +94,7 @@
 
 #pragma mark - AFPhotoBrowserDelegate
 
-- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
+- (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index section:(NSUInteger)section {
     return [_photos[_section] objectAtIndex:index];
 }
 

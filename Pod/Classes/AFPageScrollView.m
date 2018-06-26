@@ -9,7 +9,7 @@
 
 - (id)initWithDelegate:(id<AFPageScrollViewDelegate>)delegate {
     if (self == [self initWithFrame:CGRectZero]) {
-        _pageDelegate = delegate;
+        _delegate = delegate;
          [self initialProperties];
     }
     return self;
@@ -60,11 +60,11 @@
     
     _currentPageIndex = 0;
     _previousPageIndex = NSUIntegerMax;
+    _previousLayoutBounds = CGRectZero;
     
     _rotating = NO;
     _performingLayout = NO;
     _viewIsActive = NO;
-    
     
     _photoCount = NSNotFound;
     _photos = [[NSMutableArray alloc] init];
@@ -89,7 +89,6 @@
 }
 
 - (void)setup {
-    
     self.backgroundColor = [UIColor blackColor];
     self.clipsToBounds = YES;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -163,13 +162,11 @@
 
 - (void)didMoveToSuperview {
     _viewIsActive = YES;
-    
     [super didMoveToSuperview];
 }
 
 - (void)removeFromSuperview {
     _viewIsActive = NO;
-    
     [super removeFromSuperview];
 }
 
@@ -201,7 +198,6 @@
 
 - (void)layoutSubviews {
     [self layoutVisiblePages];
-    
     [super layoutSubviews];
 }
 
@@ -218,11 +214,9 @@
 
 - (void)layoutVisiblePages {
     _performingLayout = YES;
-    
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
-    
     if (!_disableIndicator) {
         _pagingIndicator.center = [self centerForPagingIndicator];
     }
@@ -231,11 +225,10 @@
         NSUInteger index = page.index;
         page.frame = [self frameForPageAtIndex:index];
         
-//        if (!CGRectEqualToRect(_previousLayoutBounds, self.view.bounds)) {
-//            [page setMaxMinZoomScalesForCurrentBounds];
-//            _previousLayoutBounds = self.view.bounds;
-//        }
-        
+        if (!CGRectEqualToRect(_previousLayoutBounds, self.bounds)) {
+            [page setMaxMinZoomScalesForCurrentBounds];
+            _previousLayoutBounds = self.bounds;
+        }
     }
     
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
@@ -252,7 +245,6 @@
 }
 
 - (void)reloadData {
-    
     _photoCount = NSNotFound;
     
     NSUInteger numberOfPhotos = [self numberOfPhotos];
@@ -279,8 +271,8 @@
 
 - (NSUInteger)numberOfPhotos {
     if (_photoCount == NSNotFound) {
-        if ([_pageDelegate respondsToSelector:@selector(numberOfPhotosInPageScrollView:)]) {
-            _photoCount = [_pageDelegate numberOfPhotosInPageScrollView:self];
+        if ([_delegate respondsToSelector:@selector(numberOfPhotosInPageScrollView:)]) {
+            _photoCount = [_delegate numberOfPhotosInPageScrollView:self];
         } else if (_fixedPhotosArray) {
             _photoCount = _fixedPhotosArray.count;
         }
@@ -293,8 +285,8 @@
     id<AFPhoto> photo = nil;
     if (index < _photos.count) {
         if ([_photos objectAtIndex:index] == [NSNull null]) {
-            if ([_pageDelegate respondsToSelector:@selector(scrollView:photoAtIndex:)]) {
-                photo = [_pageDelegate scrollView:self photoAtIndex:index];
+            if ([_delegate respondsToSelector:@selector(scrollView:photoAtIndex:)]) {
+                photo = [_delegate scrollView:self photoAtIndex:index];
             } else if (_fixedPhotosArray && index < _fixedPhotosArray.count) {
                 photo = [_fixedPhotosArray objectAtIndex:index];
             }
@@ -306,13 +298,12 @@
     return photo;
 }
 
-
 - (id<AFPhoto>)thumbPhotoAtIndex:(NSUInteger)index {
     id<AFPhoto> photo = nil;
     if (index < _thumbPhotos.count) {
         if ([_thumbPhotos objectAtIndex:index] == [NSNull null]) {
-            if ([_pageDelegate respondsToSelector:@selector(scrollView:thumbPhotoAtIndex:)]) {
-                [_pageDelegate scrollView:self thumbPhotoAtIndex:index];
+            if ([_delegate respondsToSelector:@selector(scrollView:thumbPhotoAtIndex:)]) {
+                [_delegate scrollView:self thumbPhotoAtIndex:index];
             }
             if (photo) [_thumbPhotos replaceObjectAtIndex:index withObject:photo];
         }
@@ -321,7 +312,6 @@
     }
     return photo;
 }
-
 
 - (UIImage *)imageForPhoto:(id<AFPhoto>)photo {
     if (photo) {
@@ -344,7 +334,7 @@
                 id <AFPhoto> photo = [self photoAtIndex:pageIndex-1];
                 if (![photo underlyingImage]) {
                     [photo loadUnderlyingImageAndNotify];
-                    // NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex-1);
+                    NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex-1);
                 }
             }
             if (pageIndex < [self numberOfPhotos] - 1) {
@@ -352,7 +342,7 @@
                 id <AFPhoto> photo = [self photoAtIndex:pageIndex+1];
                 if (![photo underlyingImage]) {
                     [photo loadUnderlyingImageAndNotify];
-                    // NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex+1);
+                    NSLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex+1);
                 }
             }
         }
@@ -398,10 +388,8 @@
 
             [_pagingScrollView addSubview:page];
             NSLog(@"Added page at index %zd", (unsigned long)index);
-
         }
     }
-    
 }
 
 - (AFZoomingScrollView *)pageDisplayingPhoto:(id<AFPhoto>)photo {
@@ -413,7 +401,6 @@
     }
     return thePage;
 }
-
 
 - (BOOL)isDisplayingPageForIndex:(NSUInteger)index {
     for (AFZoomingScrollView *page in _visiblePages)
@@ -439,14 +426,11 @@
 // Handle page changes
 - (void)didStartViewingPageAtIndex:(NSUInteger)index {
     
-    if (![self numberOfPhotos]) {
-        return;
-    }
+    if (![self numberOfPhotos]) return;
     
     if (!_disableIndicator) {
         _pagingIndicator.currentPage = index;
     }
-    
     
     // Release images further away than +/-1
     NSUInteger i;
@@ -483,11 +467,10 @@
     
     // Notify delegate
     if (index != _previousPageIndex) {
-        if ([_pageDelegate respondsToSelector:@selector(scrollView:didDisplayPhotoAtIndex:)])
-            [_pageDelegate scrollView:self didDisplayPhotoAtIndex:index];
+        if ([_delegate respondsToSelector:@selector(scrollView:didDisplayPhotoAtIndex:)])
+            [_delegate scrollView:self didDisplayPhotoAtIndex:index];
         _previousPageIndex = index;
     }
-    
 }
 
 #pragma mark - Frame Calculations
@@ -545,14 +528,10 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
-    // Checks
     if (!_viewIsActive || _performingLayout || _rotating) return;
     
-    // Tile pages
     [self tilePages];
     
-    // Calculate current page
     CGRect visibleBounds = _pagingScrollView.bounds;
     NSInteger index = (NSInteger)(floorf(CGRectGetMidY(visibleBounds) / CGRectGetHeight(visibleBounds)));
     if (index < 0) index = 0;
@@ -562,7 +541,6 @@
     if (_currentPageIndex != previousCurrentPage) {
         [self didStartViewingPageAtIndex:index];
     }
-    
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {

@@ -95,10 +95,12 @@
     
     CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
     _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
-    _pagingScrollView.backgroundColor = [UIColor purpleColor];
+    _pagingScrollView.backgroundColor = [UIColor blackColor];
     _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _pagingScrollView.delegate = self;
     _pagingScrollView.pagingEnabled = YES;
+    _pagingScrollView.showsHorizontalScrollIndicator = NO;
+    _pagingScrollView.showsVerticalScrollIndicator = NO;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self addSubview:_pagingScrollView];
     

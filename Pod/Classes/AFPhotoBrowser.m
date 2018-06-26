@@ -83,6 +83,8 @@
     _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _pagingScrollView.delegate = self;
     _pagingScrollView.pagingEnabled = YES;
+    _pagingScrollView.showsHorizontalScrollIndicator = NO;
+    _pagingScrollView.showsVerticalScrollIndicator = NO;
     _pagingScrollView.backgroundColor = [UIColor blackColor];
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self.view addSubview:_pagingScrollView];
@@ -174,16 +176,9 @@
 
 #pragma mark - Transition
 
-// viewWillTransitionToSize: vs willTransitionToTraitCollection:
-// https://stackoverflow.com/questions/33377708/viewwilltransitiontosize-vs-willtransitiontotraitcollection
-//
-- (BOOL)prefersStatusBarHidden {
-    return _statusBarShouldBeHidden;
-}
+- (BOOL)prefersStatusBarHidden { return _statusBarShouldBeHidden; }
 
-- (BOOL)shouldAutorotate {
-    return YES;
-}
+- (BOOL)shouldAutorotate { return YES; }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
@@ -276,31 +271,7 @@
         return;
     }
     
-    if (!_disableIndicator) {
-        _pagingIndicator.currentPage = index;
-    }
-    
-//    NSUInteger i;
-//    if (index > 0) {
-//        for (i = 0; i < index-1; i++) {
-//            id section = [_sections objectAtIndex:i];
-//            if (photo != [NSNull null]) {
-//                [photo unloadUnderlyingImage];
-//                [_sections replaceObjectAtIndex:i withObject:[NSNull null]];
-//                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
-//            }
-//        }
-//    }
-//    if (index < [self numberOfSections] - 1) {
-//        for (i = index + 2; i < _photos.count; i++) {
-//            id photo = [_photos objectAtIndex:i];
-//            if (photo != [NSNull null]) {
-//                [photo unloadUnderlyingImage];
-//                [_photos replaceObjectAtIndex:i withObject:[NSNull null]];
-//                NSLog(@"Released underlying image at index %lu", (unsigned long)i);
-//            }
-//        }
-//    }
+    if (!_disableIndicator) _pagingIndicator.currentPage = index;
     
     if (index != _previousSectionIndex) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplaySectionAtIndex:)]) {
@@ -459,7 +430,11 @@
 }
 
 - (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSUInteger)index {
-    return nil;
+    NSString *title = nil;
+    if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:section:)]) {
+        title = [_delegate photoBrowser:self titleForPhotoAtIndex:index section:scrollView.section];
+    }
+    return title;
 }
 
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index {
@@ -528,7 +503,7 @@
 #pragma mark - UIScrollView Delegata
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    // [self setControlsHidden:YES animated:YES];
+    [self setControlsHidden:YES animated:YES];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {

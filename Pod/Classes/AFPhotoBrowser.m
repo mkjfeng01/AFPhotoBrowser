@@ -385,6 +385,16 @@
     return _photoCount;
 }
 
+- (AFPageScrollView *)pageScrollViewInSection:(NSUInteger)section {
+    AFPageScrollView *pageScrollView = nil;
+    for (AFPageScrollView *page in _visiblePages) {
+        if (page.section == section) {
+            pageScrollView = page;
+        }
+    }
+    return pageScrollView;
+}
+
 - (id<AFPhoto>)photoAtIndex:(NSUInteger)index inSection:(NSUInteger)section {
     id <AFPhoto> photo = nil;
     if (section < _photos.count) {
@@ -455,6 +465,18 @@
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index {
     if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
         [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:scrollView.section];
+    }
+}
+
+- (void)scrollView:(AFPageScrollView *)scrollView singleTapAtIndex:(NSUInteger)index {
+    if ([_delegate respondsToSelector:@selector(photoBrowser:singleTapAtIndex:section:)]) {
+        [_delegate photoBrowser:self singleTapAtIndex:index section:scrollView.section];
+    }
+}
+
+- (void)scrollView:(AFPageScrollView *)scrollView doubleTapAtIndex:(NSUInteger)index {
+    if ([_delegate respondsToSelector:@selector(photoBrowser:doubleTapAtIndex:section:)]) {
+        [_delegate photoBrowser:self doubleTapAtIndex:index section:scrollView.section];
     }
 }
 
@@ -544,13 +566,16 @@
 - (void)jumpToPageAtIndex:(NSUInteger)index inSection:(NSUInteger)section animated:(BOOL)animated {
     if (section >= [self numberOfSections] || index >= [self numberOfPhotosInSection:section]) return;
     
-    _pagingIndicator.currentPage = section;
+    if (!_disableIndicator) {
+        _pagingIndicator.currentPage = section;
+    }
+    CGPoint contentOffset = [self contentOffsetForPageAtSection:section];
+    [_pagingScrollView setContentOffset:contentOffset animated:animated];
     
-    CGRect pageFrame = _pagingScrollView.frame;
-    [_pagingScrollView setContentOffset:CGPointMake(pageFrame.origin.x, 0) animated:animated];
+    AFPageScrollView *page = [self pageScrollViewInSection:section];
+    [page setCurrentPhotoIndex:index];
     
     [self updateNavigation];
-    
     [self hideControlsAfterDelay];
 }
 
@@ -603,7 +628,7 @@
 
 #pragma mark - Properties
 
-- (void)setCurrentPhotoIndex:(NSUInteger)index inSection:(NSUInteger)section {
+- (void)setCurrentPhotoIndex:(NSUInteger)index section:(NSUInteger)section {
     NSUInteger sectionCount = [self numberOfSections];
     if (sectionCount == 0) {
         section = 0;
@@ -618,7 +643,7 @@
     } else {
         if (index > photoCountInCurrentSection) index = photoCountInCurrentSection - 1;
     }
-    _currentPhotoIndex = photoCountInCurrentSection;
+    _currentPhotoIndex = index;
     
     if ([self isViewLoaded]) {
         [self jumpToPageAtIndex:_currentPhotoIndex inSection:_currentSectionIndex animated:NO];

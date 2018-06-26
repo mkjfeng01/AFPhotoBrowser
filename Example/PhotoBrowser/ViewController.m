@@ -75,27 +75,23 @@
 		// [self presentViewController:browser animated:YES completion:nil];
     });
     
-    [NSTimer scheduledTimerWithTimeInterval:20 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        
+    [NSTimer scheduledTimerWithTimeInterval:10 repeats:YES block:^(NSTimer * _Nonnull timer) {
+
         NSLog(@"🔴");
-        
-        self->_section += 1;
-        
-        if (self->_section < self->_photos.count) {
-            [self->_browser reloadData];
-        } else {
-            self->_section = 0;
-        }
+
+        [_browser setCurrentPhotoIndex:1 section:_section++];
     }];
     
     
-    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+    });
 }
 
 #pragma mark - AFPhotoBrowserDelegate
 
 - (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index section:(NSUInteger)section {
-    return [_photos[_section] objectAtIndex:index];
+    return [_photos[section] objectAtIndex:index];
 }
 
 - (NSUInteger)numberOfSectionsInPhotoBrowser:(AFPhotoBrowser *)photoBrowser {
@@ -103,7 +99,7 @@
 }
 
 - (NSUInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSUInteger)section {
-    return [_photos[_section] count];
+    return [_photos[section] count];
 }
 
 @end

@@ -17,7 +17,7 @@
 - (id)initWithDelegate:(id<AFPhotoBrowserDelegate>)delegate;
 
 - (void)reloadData;
-- (void)setCurrentPhotoIndex:(NSUInteger)index inSection:(NSUInteger)section;
+- (void)setCurrentPhotoIndex:(NSUInteger)index section:(NSUInteger)section;
 
 @end
 
@@ -33,5 +33,7 @@
 - (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser doubleTapAtIndex:(NSUInteger)index section:(NSUInteger)section;
 
 @end

@@ -332,11 +332,11 @@
 #pragma mark - Tap Detection
 
 - (void)handleSingleTap:(CGPoint)touchPoint {
-    
+    [_pageScrollView singleTap:self];
 }
 
 - (void)handleDoubleTap:(CGPoint)touchPoint {
-    
+    [_pageScrollView doubleTap:self];
     
     // Cancel any single tap handling
     [NSObject cancelPreviousPerformRequestsWithTarget:_pageScrollView];

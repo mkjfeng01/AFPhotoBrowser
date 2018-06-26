@@ -27,4 +27,7 @@
 // Data
 - (UIImage *)imageForPhoto:(id<AFPhoto>)photo;
 
+- (void)singleTap:(AFZoomingScrollView *)view;
+- (void)doubleTap:(AFZoomingScrollView *)view;
+
 @end

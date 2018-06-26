@@ -22,6 +22,7 @@
 - (id)initWithPhotoBrowser:(AFPhotoBrowser *)photoBrowser;
 
 - (void)reloadData;
+- (void)setCurrentPhotoIndex:(NSUInteger)index;
 
 - (void)setup;
 - (void)prepareForReuse;
@@ -38,5 +39,7 @@
 - (id <AFPhoto>)scrollView:(AFPageScrollView *)scrollView thumbPhotoAtIndex:(NSUInteger)index;
 - (NSString *)scrollView:(AFPageScrollView *)scrollView titleForPhotoAtIndex:(NSUInteger)index;
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index;
+- (void)scrollView:(AFPageScrollView *)scrollView singleTapAtIndex:(NSUInteger)index;
+- (void)scrollView:(AFPageScrollView *)scrollView doubleTapAtIndex:(NSUInteger)index;
 
 @end

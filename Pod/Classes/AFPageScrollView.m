@@ -473,6 +473,46 @@
     }
 }
 
+- (void)singleTap:(AFZoomingScrollView *)view {
+    if ([_delegate respondsToSelector:@selector(scrollView:singleTapAtIndex:)]) {
+        [_delegate scrollView:self singleTapAtIndex:view.index];
+    }
+}
+
+- (void)doubleTap:(AFZoomingScrollView *)view {
+    if ([_delegate respondsToSelector:@selector(scrollView:doubleTapAtIndex:)]) {
+        [_delegate scrollView:self doubleTapAtIndex:view.index];
+    }
+}
+
+#pragma mark - Properties
+
+- (void)setCurrentPhotoIndex:(NSUInteger)index {
+    // Validate
+    NSUInteger photoCount = [self numberOfPhotos];
+    if (photoCount == 0) {
+        index = 0;
+    } else {
+        if (index >= photoCount)
+            index = [self numberOfPhotos]-1;
+    }
+    _currentPageIndex = index;
+    [self jumpToPageAtIndex:index animated:NO];
+    if (!_viewIsActive)
+        [self tilePages];
+}
+
+- (void)jumpToPageAtIndex:(NSUInteger)index animated:(BOOL)animated {
+    if (index < [self numberOfPhotos]) {
+        CGRect pageFrame = [self frameForPageAtIndex:index];
+        [_pagingScrollView setContentOffset:CGPointMake(0, pageFrame.origin.y - PADDING) animated:animated];
+        
+        if (!_disableIndicator) {
+            _pagingIndicator.currentPage = index;
+        }
+    }
+}
+
 #pragma mark - Frame Calculations
 
 - (CGRect)frameForPagingScrollView {

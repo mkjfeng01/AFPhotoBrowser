@@ -1,6 +1,7 @@
+
 #import "AFPhotoBrowser.h"
+#import "AFPhoto.h"
 #import "AFPhotoBrowserPrivate.h"
-#import "AFPageScrollView.h"
 
 #define PADDING                  10
 
@@ -50,23 +51,19 @@
     _currentPhotoIndex = 0;
     _previousSectionIndex = NSUIntegerMax;
     
-    
     _performingLayout = NO;
     _rotating = NO;
     _viewIsActive = NO;
     
-    
+    _zoomPhotosToFill = YES;
     _displayNavigationBar = YES;
     _statusBarShouldBeHidden = NO;
     _disableIndicator = NO;
     _alwaysShowControls = NO;
     _delayToHideElements = 5;
     
-    
-    _sections = [[NSMutableArray alloc] init];
     _photos = [[NSMutableArray alloc] init];
     _thumbPhotos = [[NSMutableArray alloc] init];
-    
     _visiblePages = [[NSMutableSet alloc] init];
     _recycledPages = [[NSMutableSet alloc] init];
 }
@@ -91,8 +88,11 @@
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self.view addSubview:_pagingScrollView];
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
-    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever; // Or vertical content error
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+#pragma clang diagnostic pop
 #else
     self.automaticallyAdjustsScrollViewInsets = NO;
 #endif
@@ -115,9 +115,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    // if (self.navigationController) {
-    //        [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
-    // }
+     if (self.navigationController)
+         [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -263,6 +262,7 @@
     page.frame = [self frameForPageAtSection:section];
     page.pageDelegate = self;
     page.section = section;
+    page.zoomPhotosToFill = _zoomPhotosToFill;
     page.disableIndicator = _disableIndicator;
     
     [page setup];
@@ -472,8 +472,11 @@
     CGRect bounds = _pagingScrollView.bounds;
     CGFloat centerY;
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     centerY = bounds.size.height - [UIApplication sharedApplication].keyWindow.safeAreaInsets.bottom - offset;
+#pragma clang diagnostic pop
 #else
     centerY = bounds.size.height - offset;
 #endif
@@ -508,16 +511,16 @@
     // Tile pages
     [self tilePages];
     
-//    // Calculate current page
-//    CGRect visibleBounds = _pagingScrollView.bounds;
-//    NSInteger index = (NSInteger)(floorf(CGRectGetMidX(visibleBounds) / CGRectGetWidth(visibleBounds)));
-//    if (index < 0) index = 0;
-//    if (index > [self numberOfSections] - 1) index = [self numberOfSections] - 1;
-//    NSUInteger previousCurrentSection = _currentSectionIndex;
-//    _currentSectionIndex = index;
-//    if (_currentSectionIndex != previousCurrentSection) {
-//        [self didStartViewingSectionAtIndex:index];
-//    }
+    // Calculate current page
+    CGRect visibleBounds = _pagingScrollView.bounds;
+    NSInteger index = (NSInteger)(floorf(CGRectGetMidX(visibleBounds) / CGRectGetWidth(visibleBounds)));
+    if (index < 0) index = 0;
+    if (index > [self numberOfSections] - 1) index = [self numberOfSections] - 1;
+    NSUInteger previousCurrentSection = _currentSectionIndex;
+    _currentSectionIndex = index;
+    if (_currentSectionIndex != previousCurrentSection) {
+        [self didStartViewingSectionAtIndex:index];
+    }
     
 }
 

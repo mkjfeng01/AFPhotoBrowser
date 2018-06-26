@@ -9,7 +9,6 @@
     
     // Datas
     NSArray *_fixedPhotosArray; // Provided via init
-    NSMutableArray *_sections;
     NSMutableArray *_photos;
     NSMutableArray *_thumbPhotos;
     

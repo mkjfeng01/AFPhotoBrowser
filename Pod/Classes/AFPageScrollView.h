@@ -16,7 +16,7 @@
 @property (nonatomic, weak) AFPhotoBrowser *photoBrowser;
 
 @property (nonatomic, assign) BOOL disableIndicator;
-
+@property (nonatomic) BOOL zoomPhotosToFill;
 
 
 @property () NSUInteger

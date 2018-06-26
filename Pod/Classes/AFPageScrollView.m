@@ -1,3 +1,4 @@
+#import <SDWebImage/SDImageCache.h>
 #import "AFPageScrollView.h"
 #import "AFPageScrollViewPrivate.h"
 #import "AFPhotoBrowser.h"
@@ -45,6 +46,8 @@
 }
 
 - (void)dealloc {
+    [self releaseAllUnderlyingPhotos:NO];
+    [[SDImageCache sharedImageCache] clearMemory]; // clear memory
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -74,7 +77,6 @@
                                              selector:@selector(handleAFPhotoLoadingDidEndNotification:)
                                                  name:AFPHOTO_LOADING_DID_END_NOTIFICATION
                                                object:nil];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willTransitionToTraitCollection:)
                                                  name:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION
@@ -84,6 +86,45 @@
                                                  name:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION
                                                object:nil];
     
+}
+
+- (void)setup {
+    
+    self.backgroundColor = [UIColor blackColor];
+    self.clipsToBounds = YES;
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
+    _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
+    _pagingScrollView.backgroundColor = [UIColor purpleColor];
+    _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _pagingScrollView.delegate = self;
+    _pagingScrollView.pagingEnabled = YES;
+    _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
+    [self addSubview:_pagingScrollView];
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+#pragma clang diagnostic pop
+#endif
+    
+    if (!_disableIndicator) {
+        CGPoint pagingIndicatorCenter = [self centerForPagingIndicator];
+        _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
+        _pagingIndicator.transform = CGAffineTransformMakeRotation(M_PI/2);
+        _pagingIndicator.backgroundColor = [UIColor orangeColor];
+        _pagingIndicator.center = pagingIndicatorCenter;
+        _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
+        _pagingIndicator.currentPageIndicatorTintColor = [UIColor orangeColor];
+        _pagingIndicator.numberOfPages = [self numberOfPhotos];
+        [self addSubview:_pagingIndicator];
+        [self bringSubviewToFront:_pagingIndicator];
+    }
+    
+    // Update
+    [self reloadData];
 }
 
 - (void)releaseAllUnderlyingPhotos:(BOOL)preserveCurrent {
@@ -102,42 +143,6 @@
             [p unloadUnderlyingImage];
         }
     }
-}
-
-- (void)setup {
-    
-    self.backgroundColor = [UIColor blackColor];
-    self.clipsToBounds = YES;
-    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
-    _pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
-    _pagingScrollView.backgroundColor = [UIColor purpleColor];
-    _pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _pagingScrollView.delegate = self;
-    _pagingScrollView.pagingEnabled = YES;
-    _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
-    [self addSubview:_pagingScrollView];
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
-    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-#endif
-    
-    if (!_disableIndicator) {
-        CGPoint pagingIndicatorCenter = [self centerForPagingIndicator];
-        _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
-        _pagingIndicator.transform = CGAffineTransformMakeRotation(M_PI/2);
-        _pagingIndicator.backgroundColor = [UIColor orangeColor];
-        _pagingIndicator.center = pagingIndicatorCenter;
-        _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
-        _pagingIndicator.currentPageIndicatorTintColor = [UIColor orangeColor];
-        _pagingIndicator.numberOfPages = [self numberOfPhotos];
-        [self addSubview:_pagingIndicator];
-        [self bringSubviewToFront:_pagingIndicator];
-    }
-    
-    // Update
-    [self reloadData];
 }
 
 - (void)prepareForReuse {
@@ -516,8 +521,11 @@
     
     CGRect bounds = _pagingScrollView.bounds;
     CGFloat centerX;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 11000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     centerX = bounds.size.width - [UIApplication sharedApplication].keyWindow.safeAreaInsets.right - offset;
+#pragma clang diagnostic pop
 #else
     centerX = bounds.size.width - offset;
 #endif

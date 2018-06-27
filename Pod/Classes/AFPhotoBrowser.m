@@ -74,7 +74,6 @@
 }
 
 - (void)viewDidLoad {
-    
     self.view.backgroundColor = [UIColor blackColor];
     self.view.clipsToBounds = YES;
     
@@ -139,8 +138,12 @@
 
 #pragma mark - Layout
 
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    [self layoutVisibleSections];
+}
+
 - (void)performLayout {
-    
     _performingLayout = YES;
     
     // Setup pages
@@ -153,8 +156,8 @@
     // Content offset
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:_currentSectionIndex];
     [self tilePages];
-    _performingLayout = NO;
     
+    _performingLayout = NO;
 }
 
 - (void)layoutVisibleSections {
@@ -163,12 +166,16 @@
     NSUInteger indexPriorToLayout = _currentSectionIndex;
     
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
-    
-    if (!_disableIndicator) {
+    if (!_disableIndicator)
         _pagingIndicator.center = [self centerForPagingIndicator];
+    
+    for (AFPageScrollView *page in _visiblePages) {
+        NSUInteger section = page.section;
+        page.frame = [self frameForPageAtSection:section];
     }
     
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:indexPriorToLayout];
+    [self didStartViewingSectionAtIndex:_currentSectionIndex];
     
     _currentSectionIndex = indexPriorToLayout;
     _performingLayout = NO;
@@ -189,19 +196,18 @@
     
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self layoutVisibleSections];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION object:coordinator];
+        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION
+                                                            object:coordinator];
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         self->_rotating = NO;
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION object:coordinator];
+        [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION
+                                                            object:coordinator];
     }];
 }
 
 #pragma mark - Paging
 
 - (void)tilePages {
-    
     CGRect visibleBounds = _pagingScrollView.bounds;
     NSInteger iFirstSection = (NSInteger)floorf((CGRectGetMinX(visibleBounds)+PADDING*2) / CGRectGetWidth(visibleBounds));
     NSInteger iLastSection  = (NSInteger)floorf((CGRectGetMaxX(visibleBounds)-PADDING*2-1) / CGRectGetWidth(visibleBounds));
@@ -541,16 +547,18 @@
 - (void)jumpToPageAtIndex:(NSUInteger)index inSection:(NSUInteger)section animated:(BOOL)animated {
     if (section >= [self numberOfSections] || index >= [self numberOfPhotosInSection:section]) return;
     
-    if (!_disableIndicator) {
-        _pagingIndicator.currentPage = section;
-    }
     CGPoint contentOffset = [self contentOffsetForPageAtSection:section];
     [_pagingScrollView setContentOffset:contentOffset animated:animated];
     
     AFPageScrollView *page = [self pageScrollViewInSection:section];
     [page setCurrentPhotoIndex:index];
     
-    [self updateNavigation];
+    [self didStartViewingSectionAtIndex:section];
+    
+    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
+        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:section];
+    }
+    
     [self hideControlsAfterDelay];
 }
 

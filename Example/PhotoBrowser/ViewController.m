@@ -77,9 +77,14 @@
     
     [NSTimer scheduledTimerWithTimeInterval:10 repeats:YES block:^(NSTimer * _Nonnull timer) {
 
-        NSLog(@"🔴");
-
-        [_browser setCurrentPhotoIndex:1 section:_section++];
+        NSLog(@"....🚚................................🚚....");
+        
+        if (self->_section < self->_photos.count) {
+            [self->_browser setCurrentPhotoIndex:1 section:self->_section++];
+        } else {
+            self->_section = 0;
+        }
+        
     }];
     
     
@@ -100,6 +105,14 @@
 
 - (NSUInteger)photoBrowser:(AFPhotoBrowser *)photoBrowser numberOfPagesInSection:(NSUInteger)section {
     return [_photos[section] count];
+}
+
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index {
+    NSLog(@"🔴 %zd", index);
+}
+
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section {
+    NSLog(@"🔵 %zd %zd", section, index);
 }
 
 @end

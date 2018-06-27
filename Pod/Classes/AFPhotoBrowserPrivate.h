@@ -22,6 +22,7 @@
     
     // Navigation & controls
     NSTimer *_controlVisibilityTimer;
+    NSTimer *_carouselTimer;
     
     BOOL _isVCBasedStatusBarAppearance;
     BOOL _statusBarShouldBeHidden;

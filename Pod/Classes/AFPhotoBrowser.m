@@ -60,6 +60,7 @@
     _disableIndicator = NO;
     _alwaysShowControls = NO;
     _delayToHideElements = 5;
+    _carouselInterval = 5;
     
     _IndicatorTintColor = [UIColor darkGrayColor];
     _currentIndicatorColor = [UIColor whiteColor];
@@ -593,6 +594,28 @@
     }];
 }
 
+- (void)startViewWithCarousel {
+    _currentSectionIndex += 1;
+    
+    if (_currentSectionIndex >= [self numberOfSections]) {
+        _currentSectionIndex = 0;
+    }
+    
+    if ([self isViewLoaded]) {
+        [self jumpToPageAtIndex:_currentPhotoIndex inSection:_currentSectionIndex animated:YES];
+        if (!_viewIsActive) {
+            [self tilePages]; // Force tiling if view is not visible
+        }
+    }
+}
+
+- (void)cancelCarousel {
+    if (_carouselTimer) {
+        [_carouselTimer invalidate];
+        _carouselTimer = nil;
+    }
+}
+
 - (void)cancelControlHiding {
     if (_controlVisibilityTimer) {
         [_controlVisibilityTimer invalidate];
@@ -602,11 +625,13 @@
 
 // Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
-    _controlVisibilityTimer = [NSTimer timerWithTimeInterval:self.delayToHideElements
-                                                      target:self
-                                                    selector:@selector(hideControls)
-                                                    userInfo:nil
-                                                     repeats:NO];
+    [self cancelControlHiding];
+    _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
+}
+
+- (void)startCarousel {
+    [self cancelCarousel];
+    _carouselTimer = [NSTimer scheduledTimerWithTimeInterval:self.carouselInterval target:self selector:@selector(startViewWithCarousel) userInfo:nil repeats:YES];
 }
 
 - (void)hideControls { [self setControlsHidden:YES animated:YES]; }

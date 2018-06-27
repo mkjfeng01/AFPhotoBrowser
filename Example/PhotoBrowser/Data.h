@@ -5,4 +5,6 @@
 
 + (NSArray *)datasource;
 
++ (NSArray *)testData;
+
 @end

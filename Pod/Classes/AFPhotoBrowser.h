@@ -11,6 +11,7 @@
 @property (nonatomic) BOOL disableIndicator; // Determine if show pageControl, default is `NO`
 @property (nonatomic) BOOL alwaysShowControls;
 @property (nonatomic, assign) NSUInteger delayToHideElements;
+@property (nonatomic, assign) NSUInteger carouselInterval;
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *IndicatorTintColor;
 
@@ -20,6 +21,9 @@
 
 - (void)reloadData;
 - (void)setCurrentPhotoIndex:(NSUInteger)index section:(NSUInteger)section;
+
+- (void)startCarousel;
+- (void)cancelCarousel;
 
 @end
 

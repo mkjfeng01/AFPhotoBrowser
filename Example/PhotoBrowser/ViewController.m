@@ -72,7 +72,6 @@
         self->_browser = [[AFPhotoBrowser alloc] initWithDelegate:self];
 
         [self.navigationController pushViewController:self->_browser animated:YES];
-		// [self presentViewController:browser animated:YES completion:nil];
     });
     
     [NSTimer scheduledTimerWithTimeInterval:10 repeats:YES block:^(NSTimer * _Nonnull timer) {

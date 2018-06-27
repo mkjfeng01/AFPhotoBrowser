@@ -117,8 +117,8 @@
         _pagingIndicator.transform = CGAffineTransformMakeRotation(M_PI/2);
         _pagingIndicator.backgroundColor = [UIColor orangeColor];
         _pagingIndicator.center = pagingIndicatorCenter;
-        _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
-        _pagingIndicator.currentPageIndicatorTintColor = [UIColor orangeColor];
+        _pagingIndicator.pageIndicatorTintColor = self.IndicatorTintColor;
+        _pagingIndicator.currentPageIndicatorTintColor = self.currentIndicatorColor;
         _pagingIndicator.numberOfPages = [self numberOfPhotos];
         [self addSubview:_pagingIndicator];
         [self bringSubviewToFront:_pagingIndicator];

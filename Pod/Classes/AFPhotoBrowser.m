@@ -61,6 +61,9 @@
     _alwaysShowControls = NO;
     _delayToHideElements = 5;
     
+    _IndicatorTintColor = [UIColor darkGrayColor];
+    _currentIndicatorColor = [UIColor whiteColor];
+    
     _photos = [[NSMutableArray alloc] init];
     _thumbPhotos = [[NSMutableArray alloc] init];
     _visiblePages = [[NSMutableSet alloc] init];
@@ -101,8 +104,8 @@
         CGPoint pagingIndicatorCenter = [self centerForPagingIndicator];
         _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
         _pagingIndicator.center = pagingIndicatorCenter;
-        _pagingIndicator.pageIndicatorTintColor = [UIColor lightTextColor];
-        _pagingIndicator.currentPageIndicatorTintColor = [UIColor orangeColor];
+        _pagingIndicator.pageIndicatorTintColor = self.IndicatorTintColor;
+        _pagingIndicator.currentPageIndicatorTintColor = self.currentIndicatorColor;
         _pagingIndicator.numberOfPages = [self numberOfSections];
         [self.view addSubview:_pagingIndicator];
     }
@@ -256,8 +259,10 @@
     page.frame = [self frameForPageAtSection:section];
     page.delegate = self;
     page.section = section;
-    page.zoomPhotosToFill = _zoomPhotosToFill;
-    page.disableIndicator = _disableIndicator;
+    page.zoomPhotosToFill = self.zoomPhotosToFill;
+    page.disableIndicator = self.disableIndicator;
+    page.IndicatorTintColor = self.IndicatorTintColor;
+    page.currentIndicatorColor = self.currentIndicatorColor;
     
     [page setup];
 }
@@ -539,8 +544,6 @@
 - (void)updateNavigation {
     if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:section:)]) {
         self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPhotoIndex section:_currentSectionIndex];
-    } else {
-        self.title = [NSString stringWithFormat:@"section:%lu, index:%lu", _currentSectionIndex, _currentPhotoIndex];
     }
 }
 

@@ -11,6 +11,8 @@
 @property (nonatomic) BOOL disableIndicator; // Determine if show pageControl, default is `NO`
 @property (nonatomic) BOOL alwaysShowControls;
 @property (nonatomic, assign) NSUInteger delayToHideElements;
+@property (nonatomic, strong) UIColor *currentIndicatorColor;
+@property (nonatomic, strong) UIColor *IndicatorTintColor;
 
 // Initial
 - (id)initWithPhotos:(NSArray *)photosArray;

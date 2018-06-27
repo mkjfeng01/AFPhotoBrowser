@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name = 'AFPhotoBrowser'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.license = 'MIT'
   s.summary = 'Photo browser plugin with vertical and horizontal scroll.'
   s.description = <<-DESCRIPTION
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
   s.source = {
     :git => 'https://github.com/mkjfeng01/AFPhotoBrowser.git',
-    :tag => '0.0.1'
+    :tag => '0.0.2'
   }
   s.platform = :ios, '10.0'
   s.source_files = 'Pod/Classes/**/*'

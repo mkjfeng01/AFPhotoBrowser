@@ -16,6 +16,8 @@
 @property (nonatomic) BOOL disableIndicator;
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property () NSUInteger section;
+@property (nonatomic, strong) UIColor *currentIndicatorColor;
+@property (nonatomic, strong) UIColor *IndicatorTintColor;
 
 - (id)initWithDelegate:(id<AFPageScrollViewDelegate>)delegate;
 - (id)initWithPhotos:(NSArray *)photos;

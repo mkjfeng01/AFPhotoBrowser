@@ -114,4 +114,12 @@
     NSLog(@"🔵 %zd %zd", section, index);
 }
 
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section {
+    NSLog(@"-------> single tap");
+}
+
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser doubleTapAtIndex:(NSUInteger)index section:(NSUInteger)section {
+    NSLog(@"-------> double tap");
+}
+
 @end

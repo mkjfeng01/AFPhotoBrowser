@@ -19,9 +19,9 @@ Pod::Spec.new do |s|
   }
   s.platform = :ios, '10.0'
   s.source_files = 'Pod/Classes/**/*'
-  s.resource_bundles = {
-    'AFPhotoBrowser' => ['Pod/Assets/*.png']
-  }
+#  s.resource_bundles = {
+#    'AFPhotoBrowser' => ['Pod/Assets/*.png']
+#  }
   s.requires_arc = true
 
   s.frameworks = 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'MediaPlayer'

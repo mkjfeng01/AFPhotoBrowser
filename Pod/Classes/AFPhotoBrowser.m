@@ -559,9 +559,9 @@
     
     [self didStartViewingSectionAtIndex:section];
     
-    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
-        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:section];
-    }
+//    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
+//        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:section];
+//    }
     
     [self hideControlsAfterDelay];
 }

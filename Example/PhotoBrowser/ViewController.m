@@ -24,6 +24,9 @@
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self->_browser = [[AFPhotoBrowser alloc] initWithDelegate:self];
+        self->_browser.displayNavigationBar = YES;
+        [self->_browser setCurrentPhotoIndex:0 section:0];
+//        [self.view addSubview:_browser.view];
         [self.navigationController pushViewController:self->_browser animated:YES];
     });
     
@@ -34,9 +37,9 @@
 //        self->_section = 0;
 //    }
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [_browser startCarousel];
-    });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [_browser startCarousel];
+//    });
 }
 
 #pragma mark - AFPhotoBrowserDelegate
@@ -54,11 +57,11 @@
 }
 
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index {
-    NSLog(@"🔴 %zd", index);
+    
 }
 
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section {
-    NSLog(@"🔵 %zd %zd", section, index);
+    
 }
 
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section {

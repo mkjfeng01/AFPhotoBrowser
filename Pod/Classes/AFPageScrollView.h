@@ -15,7 +15,7 @@
 @property (nonatomic, weak) AFPhotoBrowser *photoBrowser;
 @property (nonatomic) BOOL disableIndicator;
 @property (nonatomic) BOOL zoomPhotosToFill;
-@property () NSUInteger section;
+@property (nonatomic, assign) NSUInteger section;
 @property (nonatomic, strong) UIColor *currentIndicatorColor;
 @property (nonatomic, strong) UIColor *IndicatorTintColor;
 

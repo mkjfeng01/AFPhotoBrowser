@@ -89,7 +89,6 @@
 }
 
 - (void)setup {
-    NSLog(@"%s", __FUNCTION__);
     self.backgroundColor = [UIColor blackColor];
     self.clipsToBounds = YES;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -130,7 +129,6 @@
 }
 
 - (void)releaseAllUnderlyingPhotos:(BOOL)preserveCurrent {
-    NSLog(@"%s", __FUNCTION__);
     NSArray *copy = [_photos copy];
     for (id p in copy) {
         if (p != [NSNull null]) {
@@ -206,7 +204,6 @@
 }
 
 - (void)performLayout {
-    NSLog(@"%s", __FUNCTION__);
     _performingLayout = YES;
     
     [_visiblePages removeAllObjects];
@@ -218,7 +215,6 @@
 }
 
 - (void)layoutVisiblePages {
-    NSLog(@"%s", __FUNCTION__);
     _performingLayout = YES;
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
@@ -251,7 +247,6 @@
 }
 
 - (void)reloadData {
-    NSLog(@"%s", __FUNCTION__);
     _photoCount = NSNotFound;
     
     NSUInteger numberOfPhotos = [self numberOfPhotos];
@@ -332,7 +327,6 @@
 }
 
 - (void)loadAdjacentPhotosIfNecessary:(id<AFPhoto>)photo {
-    NSLog(@"%s", __FUNCTION__);
     AFZoomingScrollView *page = [self pageDisplayingPhoto:photo];
     if (page) {
         // If page is current page then initiate loading of previous and next pages
@@ -361,7 +355,6 @@
 #pragma mark - Paging
 
 - (void)tilePages {
-    NSLog(@"%s", __FUNCTION__);
     CGRect visibleBounds = _pagingScrollView.bounds;
     NSInteger iFirstIndex = (NSInteger)floorf((CGRectGetMinY(visibleBounds)+PADDING*2) / CGRectGetHeight(visibleBounds));
     NSInteger iLastIndex  = (NSInteger)floorf((CGRectGetMaxY(visibleBounds)-PADDING*2-1) / CGRectGetHeight(visibleBounds));
@@ -419,7 +412,6 @@
 }
 
 - (void)configurePage:(AFZoomingScrollView *)page forIndex:(NSUInteger)index {
-    NSLog(@"%s", __FUNCTION__);
     page.frame = [self frameForPageAtIndex:index];
     page.section = self.section;
     page.index = index;
@@ -436,7 +428,6 @@
 
 // Handle page changes
 - (void)didStartViewingPageAtIndex:(NSUInteger)index {
-    NSLog(@"%s", __FUNCTION__);
     if (![self numberOfPhotos]) return;
     
     if (!_disableIndicator) {

@@ -119,8 +119,9 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-     if (self.navigationController)
-         [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
+    if (self.navigationController) {
+        [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -198,11 +199,11 @@
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _rotating = YES;
     
-    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         [self layoutVisibleSections];
         [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION
                                                             object:coordinator];
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         self->_rotating = NO;
         [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION
                                                             object:coordinator];
@@ -243,6 +244,7 @@
             }
             [_visiblePages addObject:page];
             [self configurePage:page forSection:index];
+            [page setup];
 
             [_pagingScrollView addSubview:page];
             NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
@@ -264,8 +266,6 @@
     page.disableIndicator = self.disableIndicator;
     page.IndicatorTintColor = self.IndicatorTintColor;
     page.currentIndicatorColor = self.currentIndicatorColor;
-    
-    [page setup];
 }
 
 - (AFPageScrollView *)dequeueRecycledPage {
@@ -276,24 +276,22 @@
     return page;
 }
 
-- (void)didStartViewingSectionAtIndex:(NSUInteger)index {
-    
+- (void)didStartViewingSectionAtIndex:(NSUInteger)section {
     if (![self numberOfSections]) {
         [self setControlsHidden:NO animated:YES];
         return;
     }
     
-    if (!_disableIndicator) _pagingIndicator.currentPage = index;
+    if (!_disableIndicator) _pagingIndicator.currentPage = section;
     
-    if (index != _previousSectionIndex) {
-        if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplaySectionAtIndex:)]) {
-            [_delegate photoBrowser:self didDisplaySectionAtIndex:index];
+    if (section != _previousSectionIndex) {
+        if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
+            [_delegate photoBrowser:self didDisplayPhotoAtIndex:_currentPhotoIndex section:section];
         }
-        _previousSectionIndex = index;
+        _previousSectionIndex = section;
     }
     
     [self updateNavigation];
-    
 }
     
 #pragma mark - Data
@@ -308,7 +306,6 @@
     
     for (int section = 0; section < numberOfSections; section++) {
         NSUInteger numberOfPhotos = [self numberOfPhotosInSection:section];
-        
         NSMutableArray *photos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
         NSMutableArray *thumbPhotos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
         
@@ -450,9 +447,12 @@
 }
 
 - (void)scrollView:(AFPageScrollView *)scrollView didDisplayPhotoAtIndex:(NSUInteger)index {
-    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
-        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:scrollView.section];
+    if (index != _currentPhotoIndex) {
+        if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
+            [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:scrollView.section];
+        }
     }
+    _currentPhotoIndex = index;
 }
 
 - (void)scrollView:(AFPageScrollView *)scrollView singleTapAtIndex:(NSUInteger)index {
@@ -558,11 +558,6 @@
     [page setCurrentPhotoIndex:index];
     
     [self didStartViewingSectionAtIndex:section];
-    
-//    if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:section:)]) {
-//        [_delegate photoBrowser:self didDisplayPhotoAtIndex:index section:section];
-//    }
-    
     [self hideControlsAfterDelay];
 }
 
@@ -609,7 +604,7 @@
     }
 }
 
-- (void)cancelCarousel {
+- (void)invalid {
     if (_carouselTimer) {
         [_carouselTimer invalidate];
         _carouselTimer = nil;
@@ -629,8 +624,8 @@
     _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
 }
 
-- (void)startCarousel {
-    [self cancelCarousel];
+- (void)explore {
+    [self invalid];
     _carouselTimer = [NSTimer scheduledTimerWithTimeInterval:self.carouselInterval target:self selector:@selector(startViewWithCarousel) userInfo:nil repeats:YES];
 }
 

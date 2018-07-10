@@ -22,8 +22,11 @@
 - (void)reloadData;
 - (void)setCurrentPhotoIndex:(NSUInteger)index section:(NSUInteger)section;
 
-- (void)startCarousel;
-- (void)cancelCarousel;
+/// Carousel method, you can perform this method auto scroll images.
+/// To stop carousel, perform invalid method.
+/// 
+- (void)explore;
+- (void)invalid;
 
 @end
 
@@ -36,7 +39,6 @@
 @optional
 
 - (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser thumbPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
-- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
 - (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section;

@@ -56,12 +56,8 @@
     return [_photos[section] count];
 }
 
-- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index {
-    
-}
-
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section {
-    
+    NSLog(@"👉 %zd %zd", section, index);
 }
 
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section {

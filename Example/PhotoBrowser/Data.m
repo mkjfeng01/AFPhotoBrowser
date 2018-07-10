@@ -42,7 +42,7 @@ NSString * url5 = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10
 - (instancetype)initWithDictionary:(NSDictionary *)json {
     if (self == [super init]) {
         _ID = json[@"id"];
-        _items = [[Product alloc] initWithDictionary:json[@"items"]];
+//        _items = [[Product alloc] initWithDictionary:json[@"items"]];
     }
     return self;
 }

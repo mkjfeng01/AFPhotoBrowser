@@ -216,6 +216,7 @@
             self->_webImageOperation = nil;
             self.underlyingImage = image;
             dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"🔵");
                 [self imageLoadingComplete];
             });
         }];
@@ -308,10 +309,12 @@
     // Complete so notify
     _loadingInProgress = NO;
     // Notify on next run loop
-    [self performSelector:@selector(postCompleteNotification) withObject:nil afterDelay:0];
+    // FIXED: Do not use `performSelector:...`, this methos sometimes dont performed.
+    [self postCompleteNotification];
 }
 
 - (void)postCompleteNotification {
+    NSLog(@"💊");
     [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_LOADING_DID_END_NOTIFICATION
                                                         object:self];
 }

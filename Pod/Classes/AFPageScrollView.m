@@ -177,6 +177,7 @@
 - (void)handleAFPhotoLoadingDidEndNotification:(NSNotification *)notification {
     id <AFPhoto> photo = [notification object];
     AFZoomingScrollView *page = [self pageDisplayingPhoto:photo];
+    NSLog(@"➡️");
     if (page) {
         if ([photo underlyingImage]) {
             [page displayImage];
@@ -416,6 +417,11 @@
     page.section = self.section;
     page.index = index;
     page.photo = [self photoAtIndex:index];
+//    id photo = [self photoAtIndex:index];
+    
+//    [page performSelectorOnMainThread:@selector(setPhoto:) withObject:photo waitUntilDone:NO modes:@[NSDefaultRunLoopMode]];
+    
+//    page.photo = [self photoAtIndex:index];
 }
 
 - (AFZoomingScrollView *)dequeueRecycledPage {

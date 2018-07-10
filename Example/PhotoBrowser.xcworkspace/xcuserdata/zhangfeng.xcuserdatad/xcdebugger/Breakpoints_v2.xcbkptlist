@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../Pod/Classes/AFPageScrollView.m"
-            timestampString = "552886526.354058"
+            timestampString = "552901291.6044019"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "467"
-            endingLineNumber = "467"
-            landmarkName = "-didStartViewingPageAtIndex:"
+            startingLineNumber = "425"
+            endingLineNumber = "425"
+            landmarkName = "-configurePage:forIndex:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Classes/AFPhotoBrowser.m"
-            timestampString = "552887188.705228"
+            filePath = "../Pod/Classes/AFPhoto.m"
+            timestampString = "552901291.604477"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "455"
-            endingLineNumber = "455"
-            landmarkName = "-scrollView:didDisplayPhotoAtIndex:"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "-loadUnderlyingImageAndNotify"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,13 +41,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Classes/AFPhotoBrowser.m"
-            timestampString = "552887188.705704"
+            filePath = "../Pod/Classes/AFPhoto.m"
+            timestampString = "552901291.604919"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "450"
-            endingLineNumber = "450"
-            landmarkName = "-scrollView:didDisplayPhotoAtIndex:"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
+            landmarkName = "-loadUnderlyingImageAndNotify"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -57,13 +57,45 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Classes/AFPhotoBrowser.m"
-            timestampString = "552887188.706035"
+            filePath = "../Pod/Classes/AFPhoto.m"
+            timestampString = "552901291.605256"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "647"
-            endingLineNumber = "647"
-            landmarkName = "-setCurrentPhotoIndex:section:"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
+            landmarkName = "-performLoadUnderlyingImageAndNotify"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../Pod/Classes/AFPhoto.m"
+            timestampString = "552901291.6055551"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "197"
+            endingLineNumber = "197"
+            landmarkName = "-performLoadUnderlyingImageAndNotify"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../Pod/Classes/AFPhoto.m"
+            timestampString = "552901291.606005"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
+            landmarkName = "-_performLoadUnderlyingImageAndNotifyWithAsset:targetSize:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

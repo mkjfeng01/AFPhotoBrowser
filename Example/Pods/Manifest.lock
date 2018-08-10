@@ -1,0 +1,33 @@
+PODS:
+  - AFPhotoBrowser (0.0.4):
+    - DACircularProgress
+    - MBProgressHUD
+    - SDWebImage
+  - DACircularProgress (2.3.1)
+  - MBProgressHUD (1.1.0)
+  - SDWebImage (4.4.1):
+    - SDWebImage/Core (= 4.4.1)
+  - SDWebImage/Core (4.4.1)
+
+DEPENDENCIES:
+  - AFPhotoBrowser (from `../`)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - DACircularProgress
+    - MBProgressHUD
+    - SDWebImage
+
+EXTERNAL SOURCES:
+  AFPhotoBrowser:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  AFPhotoBrowser: b052363f638962a589be85802bbe3ab5e9e5a874
+  DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
+  MBProgressHUD: e7baa36a220447d8aeb12769bf0585582f3866d9
+  SDWebImage: 47e9b5b925cbce75946c23f0c42dd19464189af4
+
+PODFILE CHECKSUM: a9d518b997c7303942ba382f85909146d9175391
+
+COCOAPODS: 1.5.0

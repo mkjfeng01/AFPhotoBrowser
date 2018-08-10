@@ -6,6 +6,7 @@
 @interface AFPhotoBrowser : UIViewController <UIScrollViewDelegate, AFPageScrollViewDelegate>
 
 @property (nonatomic, weak) IBOutlet id<AFPhotoBrowserDelegate> delegate;
+@property (nonatomic) UIColor *backgroundColor;
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property (nonatomic) BOOL displayNavigationBar;
 @property (nonatomic) BOOL disableIndicator; // Determine if show pageControl, default is `NO`
@@ -22,11 +23,8 @@
 - (void)reloadData;
 - (void)setCurrentPhotoIndex:(NSUInteger)index section:(NSUInteger)section;
 
-/// Carousel method, you can perform this method auto scroll images.
-/// To stop carousel, perform invalid method.
-/// 
-- (void)explore;
-- (void)invalid;
+- (void)startCarousel;
+- (void)cancelCarousel;
 
 @end
 
@@ -39,7 +37,9 @@
 @optional
 
 - (id<AFPhoto>)photoBrowser:(AFPhotoBrowser *)photoBrowser thumbPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplaySectionAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
+- (void)photoBrowser:(AFPhotoBrowser *)photoBrowser didEndDisplaySectionAtIndex:(NSUInteger)index;
 - (NSString *)photoBrowser:(AFPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index section:(NSUInteger)section;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser singleTapAtIndex:(NSUInteger)index section:(NSUInteger)section;
 - (void)photoBrowser:(AFPhotoBrowser *)photoBrowser doubleTapAtIndex:(NSUInteger)index section:(NSUInteger)section;

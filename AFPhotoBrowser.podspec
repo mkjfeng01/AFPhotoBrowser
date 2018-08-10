@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name = 'AFPhotoBrowser'
-  s.version = '0.0.4'
+  s.version = '0.0.5'
   s.license = 'MIT'
   s.summary = 'Photo browser plugin with vertical and horizontal scroll.'
   s.description = <<-DESCRIPTION
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
   s.source = {
     :git => 'https://github.com/mkjfeng01/AFPhotoBrowser.git',
-    :tag => '0.0.4'
+    :tag => '0.0.5'
   }
   s.platform = :ios, '9.0'
   s.source_files = 'Pod/Classes/**/*'
@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   s.weak_frameworks = 'Photos'
 
   s.dependency 'MBProgressHUD'
-  s.dependency 'DACircularProgress', '~> 2.3'
+  s.dependency 'DACircularProgress'
   s.dependency 'SDWebImage'
 
 end

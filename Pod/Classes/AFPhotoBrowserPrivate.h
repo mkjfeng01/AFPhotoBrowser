@@ -1,10 +1,12 @@
 #import "AFPhotoBrowser.h"
 
+@class AFPageIndicator;
+
 @interface AFPhotoBrowser () {
     
     // Views
     UIScrollView *_pagingScrollView;
-    UIPageControl *_pagingIndicator;
+    AFPageIndicator *_pagingIndicator;
     
     // Datas
     NSArray *_fixedPhotosArray; // Provided via init
@@ -29,7 +31,7 @@
     BOOL _performingLayout;
     BOOL _rotating;
     BOOL _viewIsActive; // active as in it's in the view heirarchy
-    
+    BOOL _carousel;
 }
 
 @end

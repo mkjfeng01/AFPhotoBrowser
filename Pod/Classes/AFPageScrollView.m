@@ -146,6 +146,7 @@
 }
 
 - (void)prepareForReuse {
+    _photoCount = NSNotFound;
     _currentPageIndex = 0;
     _previousPageIndex = NSUIntegerMax;
 
@@ -153,9 +154,8 @@
     _performingLayout = NO;
     _viewIsActive = NO;
 
-    _photoCount = NSNotFound;
-    _photos = [[NSMutableArray alloc] init];
-    _thumbPhotos = [[NSMutableArray alloc] init];
+    [_photos removeAllObjects];
+    [_thumbPhotos removeAllObjects];
     
 //    [_visiblePages removeAllObjects];
 //    [_recycledPages removeAllObjects];
@@ -328,7 +328,6 @@
 - (void)loadAdjacentPhotosIfNecessary:(id<AFPhoto>)photo {
     AFZoomingScrollView *page = [self pageDisplayingPhoto:photo];
     if (page) {
-        // If page is current page then initiate loading of previous and next pages
         NSUInteger pageIndex = page.index;
         if (_currentPageIndex == pageIndex) {
             if (pageIndex > 0) {
@@ -354,6 +353,7 @@
 #pragma mark - Paging
 
 - (void)tilePages {
+    
     CGRect visibleBounds = _pagingScrollView.bounds;
     NSInteger iFirstIndex = (NSInteger)floorf((CGRectGetMinY(visibleBounds)+PADDING*2) / CGRectGetHeight(visibleBounds));
     NSInteger iLastIndex  = (NSInteger)floorf((CGRectGetMaxY(visibleBounds)-PADDING*2-1) / CGRectGetHeight(visibleBounds));
@@ -373,14 +373,13 @@
         }
     }
     [_visiblePages minusSet:_recycledPages];
-    while (_recycledPages.count > 2)  // Only keep 2 recycled pages
+    while (_recycledPages.count > 2) {
         [_recycledPages removeObject:[_recycledPages anyObject]];
-    
-	// Add missing pages
+    }
+
     for (NSUInteger index = (NSUInteger)iFirstIndex; index <= (NSUInteger)iLastIndex; index++) {
         if (![self isDisplayingPageForIndex:index]) {
 
-            // Add new page
             AFZoomingScrollView *page = [self dequeueRecycledPage];
             if (!page) {
                 page = [[AFZoomingScrollView alloc] initWithPageScrollView:self];
@@ -427,6 +426,7 @@
 
 // Handle page changes
 - (void)didStartViewingPageAtIndex:(NSUInteger)index {
+    
     if (![self numberOfPhotos]) return;
     
     if (!_disableIndicator) {

@@ -14,7 +14,6 @@
 }
 
 @property (nonatomic, strong) UIImage *image;
-@property (nonatomic, strong) NSURL *photoURL;
 @property (nonatomic, strong) PHAsset *asset;
 @property (nonatomic) CGSize assetTargetSize;
 
@@ -216,7 +215,6 @@
             self->_webImageOperation = nil;
             self.underlyingImage = image;
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"🔵");
                 [self imageLoadingComplete];
             });
         }];
@@ -305,16 +303,14 @@
 }
 
 - (void)imageLoadingComplete {
-    NSAssert([[NSThread currentThread] isMainThread], @"This method must be called on the main thread.");
+    // NSAssert([[NSThread currentThread] isMainThread], @"This method must be called on the main thread.");
     // Complete so notify
     _loadingInProgress = NO;
     // Notify on next run loop
-    // FIXED: Do not use `performSelector:...`, this methos sometimes dont performed.
-    [self postCompleteNotification];
+    [self performSelectorOnMainThread:@selector(postCompleteNotification) withObject:nil waitUntilDone:YES];
 }
 
 - (void)postCompleteNotification {
-    NSLog(@"💊");
     [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTO_LOADING_DID_END_NOTIFICATION
                                                         object:self];
 }

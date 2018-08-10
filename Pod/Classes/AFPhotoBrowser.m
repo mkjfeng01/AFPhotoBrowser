@@ -1,5 +1,6 @@
 #import "AFPhotoBrowser.h"
 #import "AFPhoto.h"
+#import "AFPageIndicator.h"
 #import "AFPhotoBrowserPrivate.h"
 
 #define PADDING                  10
@@ -60,7 +61,7 @@
     _disableIndicator = NO;
     _alwaysShowControls = NO;
     _delayToHideElements = 5;
-    _carouselInterval = 5;
+    _carouselInterval = 3;
     
     _IndicatorTintColor = [UIColor darkGrayColor];
     _currentIndicatorColor = [UIColor whiteColor];
@@ -100,16 +101,15 @@
     }
     
     if (!_disableIndicator) {
-        CGPoint pagingIndicatorCenter = [self centerForPagingIndicator];
-        _pagingIndicator = [[UIPageControl alloc] initWithFrame:CGRectZero];
-        _pagingIndicator.center = pagingIndicatorCenter;
-        _pagingIndicator.pageIndicatorTintColor = self.IndicatorTintColor;
-        _pagingIndicator.currentPageIndicatorTintColor = self.currentIndicatorColor;
-        _pagingIndicator.numberOfPages = [self numberOfSections];
+        CGRect pagingIndicatorFrame = [self frameForPagingIndicator];
+        _pagingIndicator = [[AFPageIndicator alloc] initWithFrame:pagingIndicatorFrame];
+        _pagingIndicator.backgroundColor = [UIColor darkGrayColor];
+        _pagingIndicator.layer.cornerRadius = 12.5;
+        _pagingIndicator.layer.masksToBounds = YES;
         [self.view addSubview:_pagingIndicator];
     }
     
-    [self reloadData];
+//    [self reloadData];
     
     [super viewDidLoad];
 }
@@ -117,9 +117,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    if (self.navigationController) {
-        [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
-    }
+     if (self.navigationController)
+         [self.navigationController setNavigationBarHidden:!_displayNavigationBar animated:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -156,6 +155,9 @@
     // Update nav
     [self updateNavigation];
     
+    _pagingIndicator.numberOfPages = [self numberOfSections];
+    _pagingIndicator.currentPage = _currentSectionIndex;
+    
     // Content offset
     _pagingScrollView.contentOffset = [self contentOffsetForPageAtSection:_currentSectionIndex];
     [self tilePages];
@@ -170,7 +172,7 @@
     
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     if (!_disableIndicator)
-        _pagingIndicator.center = [self centerForPagingIndicator];
+        _pagingIndicator.frame = [self frameForPagingIndicator];
     
     for (AFPageScrollView *page in _visiblePages) {
         NSUInteger section = page.section;
@@ -197,11 +199,11 @@
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _rotating = YES;
     
-    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         [self layoutVisibleSections];
         [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_WILL_TRANSITION_TO_TRAINT_COLLECTION
                                                             object:coordinator];
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         self->_rotating = NO;
         [[NSNotificationCenter defaultCenter] postNotificationName:AFPHOTOBROWSER_DID_TRANSITION_TO_TRAINT_COLLECTION
                                                             object:coordinator];
@@ -226,7 +228,7 @@
             [_recycledPages addObject:page];
             [page prepareForReuse];
             [page removeFromSuperview];
-            NSLog(@"[Browser] Removed page at index %lu", (unsigned long)pageSection);
+            NSLog(@"🔵 [Browser] Removed page at index %lu", (unsigned long)pageSection);
         }
     }
     [_visiblePages minusSet:_recycledPages];
@@ -243,9 +245,10 @@
             [_visiblePages addObject:page];
             [self configurePage:page forSection:index];
             [page setup];
-
+            
             [_pagingScrollView addSubview:page];
-            NSLog(@"[Browser] Added page at index %lu", (unsigned long)index);
+            
+            NSLog(@"🔵 [Browser] Added page at index %lu", (unsigned long)index);
         }
     }
 }
@@ -275,6 +278,7 @@
 }
 
 - (void)didStartViewingSectionAtIndex:(NSUInteger)section {
+    
     if (![self numberOfSections]) {
         [self setControlsHidden:NO animated:YES];
         return;
@@ -290,6 +294,7 @@
     }
     
     [self updateNavigation];
+    
 }
     
 #pragma mark - Data
@@ -304,6 +309,7 @@
     
     for (int section = 0; section < numberOfSections; section++) {
         NSUInteger numberOfPhotos = [self numberOfPhotosInSection:section];
+        
         NSMutableArray *photos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
         NSMutableArray *thumbPhotos = [NSMutableArray arrayWithCapacity:numberOfPhotos];
         
@@ -479,19 +485,20 @@
     return CGSizeMake(bounds.size.width * [self numberOfSections], bounds.size.height);
 }
 
-- (CGPoint)centerForPagingIndicator {
-    CGFloat offset = 22;
+- (CGRect)frameForPagingIndicator {
+    CGFloat offset = 35;
+    CGFloat maxWidth = 70;
     CGRect bounds = _pagingScrollView.bounds;
-    CGFloat centerY;
+    CGFloat originY;
     
     if (@available(iOS 11.0, *)) {
-        centerY = bounds.size.height - [UIApplication sharedApplication].keyWindow.safeAreaInsets.bottom - offset;
+        originY = bounds.size.height - [UIApplication sharedApplication].keyWindow.safeAreaInsets.bottom - offset;
     } else {
-        centerY = bounds.size.height - offset;
+        originY = bounds.size.height - offset;
         // Fallback on earlier versions
     }
-
-    return CGPointMake(_pagingScrollView.center.x, centerY);
+    
+    return CGRectMake(CGRectGetMidX(_pagingScrollView.frame) - maxWidth/2, originY, maxWidth, 25);
 }
 
 - (CGPoint)contentOffsetForPageAtSection:(NSUInteger)section {
@@ -534,6 +541,10 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     [self updateNavigation];
+    
+    if ([_delegate respondsToSelector:@selector(photoBrowser:didEndDisplaySectionAtIndex:)]) {
+        [_delegate photoBrowser:self didEndDisplaySectionAtIndex:_currentSectionIndex];
+    }
 }
 
 #pragma mark - Navigation
@@ -587,6 +598,7 @@
 
 - (void)startViewWithCarousel {
     _currentSectionIndex += 1;
+    _currentPhotoIndex = 0;
     
     if (_currentSectionIndex >= [self numberOfSections]) {
         _currentSectionIndex = 0;
@@ -600,7 +612,7 @@
     }
 }
 
-- (void)invalid {
+- (void)cancelCarousel {
     if (_carouselTimer) {
         [_carouselTimer invalidate];
         _carouselTimer = nil;
@@ -620,8 +632,8 @@
     _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
 }
 
-- (void)explore {
-    [self invalid];
+- (void)startCarousel {
+    [self cancelCarousel];
     _carouselTimer = [NSTimer scheduledTimerWithTimeInterval:self.carouselInterval target:self selector:@selector(startViewWithCarousel) userInfo:nil repeats:YES];
 }
 

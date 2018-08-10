@@ -1,4 +1,3 @@
-#import <DACircularProgress/DACircularProgressView.h>
 #import "AFZoomingScrollView.h"
 #import "AFPhoto.h"
 #import "AFPageScrollView.h"
@@ -10,7 +9,6 @@
     AFPageScrollView __weak *_pageScrollView;
     AFTapDetectingView *_tapView; // for background taps
     AFTapDetectingImageView *_photoImageView;
-    DACircularProgressView *_loadingIndicator;
     UIImageView *_loadingError;
     
 }
@@ -38,14 +36,6 @@
         _photoImageView.backgroundColor = [UIColor blackColor];
         [self addSubview:_photoImageView];
         
-        _loadingIndicator = [[DACircularProgressView alloc] initWithFrame:CGRectMake(140.0f, 30.0f, 40.0f, 40.0f)];
-        _loadingIndicator.userInteractionEnabled = NO;
-        _loadingIndicator.thicknessRatio = 0.1;
-        _loadingIndicator.roundedCorners = NO;
-        _loadingIndicator.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
-        [self addSubview:_loadingIndicator];
-        
         // Listen progress notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(setProgressFromNotification:)
@@ -58,6 +48,7 @@
         self.showsVerticalScrollIndicator = NO;
         self.decelerationRate = UIScrollViewDecelerationRateFast;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
     }
     
     return self;
@@ -154,26 +145,14 @@
 #pragma mark - Loading Progress
 
 - (void)setProgressFromNotification:(NSNotification *)notification {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSDictionary *dict = [notification object];
-        id <AFPhoto> photoWithProgress = [dict objectForKey:@"photo"];
-        if (photoWithProgress == self.photo) {
-            float progress = [[dict valueForKey:@"progress"] floatValue];
-            self->_loadingIndicator.progress = MAX(MIN(1, progress), 0);
-        }
-    });
+    
 }
 
 - (void)hideLoadingIndicator {
-    _loadingIndicator.hidden = YES;
+    
 }
 
 - (void)showLoadingIndicator {
-    self.zoomScale = 0;
-    self.minimumZoomScale = 0;
-    self.maximumZoomScale = 0;
-    _loadingIndicator.progress = 0;
-    _loadingIndicator.hidden = NO;
     [self hideImageFailure];
 }
 
@@ -264,12 +243,6 @@
     // Update tap view frame
     _tapView.frame = self.bounds;
     
-    // Position indicators (centre does not seem to work!)
-    if (!_loadingIndicator.hidden)
-        _loadingIndicator.frame = CGRectMake(floorf((self.bounds.size.width - _loadingIndicator.frame.size.width) / 2.),
-                                             floorf((self.bounds.size.height - _loadingIndicator.frame.size.height) / 2),
-                                             _loadingIndicator.frame.size.width,
-                                             _loadingIndicator.frame.size.height);
     if (_loadingError)
         _loadingError.frame = CGRectMake(floorf((self.bounds.size.width - _loadingError.frame.size.width) / 2.),
                                          floorf((self.bounds.size.height - _loadingError.frame.size.height) / 2),

@@ -104,12 +104,11 @@
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self addSubview:_pagingScrollView];
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability-new"
-    _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-#pragma clang diagnostic pop
-#endif
+    if (@available(iOS 11.0, *)) {
+        _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    } else {
+        // Fallback on earlier versions
+    }
     
     if (!_disableIndicator) {
         CGPoint pagingIndicatorCenter = [self centerForPagingIndicator];
@@ -546,14 +545,14 @@
     
     CGRect bounds = _pagingScrollView.bounds;
     CGFloat centerX;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpartial-availability"
-    centerX = bounds.size.width - [UIApplication sharedApplication].keyWindow.safeAreaInsets.right - offset;
-#pragma clang diagnostic pop
-#else
-    centerX = bounds.size.width - offset;
-#endif
+    
+    if (@available(iOS 11.0, *)) {
+        centerX = bounds.size.width - [UIApplication sharedApplication].keyWindow.safeAreaInsets.right - offset;
+    } else {
+        centerX = bounds.size.width - offset;
+        // Fallback on earlier versions
+    }
+    
     return CGPointMake(centerX, _pagingScrollView.center.y);
 }
 

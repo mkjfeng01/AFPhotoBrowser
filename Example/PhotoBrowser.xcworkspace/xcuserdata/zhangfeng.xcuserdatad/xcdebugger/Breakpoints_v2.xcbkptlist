@@ -65,6 +65,38 @@
             endingLineNumber = "295"
             landmarkName = "-_performLoadUnderlyingImageAndNotifyWithAsset:targetSize:"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__68-[AFPhoto _performLoadUnderlyingImageAndNotifyWithAsset:targetSize:]_block_invoke.184"
+                  moduleName = "AFPhotoBrowser"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/zhangfeng/Desktop/Project/PhotoBrowser/Pod/Classes/AFPhoto.m"
+                  timestampString = "556600652.264661"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "295"
+                  endingLineNumber = "295"
+                  offsetFromSymbolStart = "252">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__copy_helper_block_.188"
+                  moduleName = "AFPhotoBrowser"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/zhangfeng/Desktop/Project/PhotoBrowser/Pod/Classes/AFPhoto.m"
+                  timestampString = "556600652.2696069"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "290"
+                  endingLineNumber = "290"
+                  offsetFromSymbolStart = "16">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

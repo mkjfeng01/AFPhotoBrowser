@@ -273,6 +273,7 @@
     AFPageScrollView *page = [_recycledPages anyObject];
     if (page) {
         [_recycledPages removeObject:page];
+        page = nil;
     }
     return page;
 }
